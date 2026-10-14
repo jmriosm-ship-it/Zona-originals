@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { LOGO } from './assets'
 
 // Medidas aproximadas en cm: ancho, alto, grosor.
 const DIMS = {
@@ -76,7 +77,7 @@ function screenTexture(logoUrl) {
   return tex
 }
 
-export function createPhoneScene(container, { color = '#2b2b2d', variant = 'pro', logoUrl = '/logo.png', name = '' }) {
+export function createPhoneScene(container, { color = '#2b2b2d', variant = 'pro', logoUrl = LOGO, name = '' }) {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.toneMapping = THREE.ACESFilmicToneMapping

@@ -1,3 +1,5 @@
+import { LOGO } from '../lib/assets'
+
 // Se muestra cuando un producto todavía no tiene foto. En iPhone toma el color elegido.
 export default function Placeholder({ product, color }) {
   if (product.category === 'iphone') {
@@ -11,5 +13,5 @@ export default function Placeholder({ product, color }) {
       </svg>
     )
   }
-  return <img className="ph ph-logo" src="/logo.png" alt={`${product.name} (sin foto)`} />
+  return <img className="ph ph-logo" src={LOGO} alt={`${product.name} (sin foto)`} />
 }

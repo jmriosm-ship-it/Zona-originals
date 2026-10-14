@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { LOGO } from '../lib/assets'
 
 // Logo gigante de fondo: sigue el mouse en 3D, gira despacio y se desplaza al hacer scroll.
 export default function LogoBackdrop() {
@@ -47,7 +48,7 @@ export default function LogoBackdrop() {
 
   return (
     <div className="backdrop" aria-hidden="true">
-      <img ref={ref} src="/logo.png" alt="" draggable="false" />
+      <img ref={ref} src={LOGO} alt="" draggable="false" />
     </div>
   )
 }

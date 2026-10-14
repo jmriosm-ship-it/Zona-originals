@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fmtPrice, waLink } from '../lib/data'
+import { LOGO } from '../lib/assets'
 
 export default function Cart({ items, whatsapp, onClose, onQty, onClear }) {
   const [financed, setFinanced] = useState(false)
@@ -49,7 +50,7 @@ export default function Cart({ items, whatsapp, onClose, onQty, onClear }) {
               {items.map(({ product: p, qty }) => (
                 <li key={p.id} className="line">
                   <div className="line-img">
-                    {p.images[0] ? <img src={p.images[0]} alt="" /> : <img src="/logo.png" alt="" className="dim" />}
+                    {p.images[0] ? <img src={p.images[0]} alt="" /> : <img src={LOGO} alt="" className="dim" />}
                   </div>
                   <div className="line-info">
                     <p className="line-name">{p.name}</p>

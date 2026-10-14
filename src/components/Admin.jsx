@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { CATEGORIES, COLOR_PRESETS, CONDITIONS, fmtPrice, uid } from '../lib/data'
 import { fileToDataUrl } from '../lib/storage'
+import { LOGO } from '../lib/assets'
 
 const EMPTY = {
   name: '',
@@ -44,7 +45,7 @@ function Lock({ settings, onUnlock, onCreatePin }) {
 
   return (
     <form className="lock panel" onSubmit={submit}>
-      <img src="/logo.png" alt="" width="72" height="72" className="lock-logo" />
+      <img src={LOGO} alt="" width="72" height="72" className="lock-logo" />
       <h1 className="h3">{creating ? 'Crea tu clave de administrador' : 'Administrar tienda'}</h1>
       <p className="sub">
         {creating ? 'Será la clave para subir y editar productos.' : 'Ingresa tu clave para continuar.'}
@@ -497,7 +498,7 @@ export default function Admin({ products, setProducts, settings, setSettings, st
     <main className="wrap admin">
       <header className="admin-head">
         <a className="brand" href="#/">
-          <img src="/logo.png" alt="" width="28" height="28" />
+          <img src={LOGO} alt="" width="28" height="28" />
           <span>Panel de administración</span>
         </a>
         <a className="btn btn-ghost btn-sm" href="#/">Ver tienda</a>
@@ -553,7 +554,7 @@ export default function Admin({ products, setProducts, settings, setSettings, st
               {products.map((p) => (
                 <li className="row" key={p.id}>
                   <div className="row-img">
-                    <img src={p.images[0] || '/logo.png'} alt="" className={p.images[0] ? '' : 'dim'} />
+                    <img src={p.images[0] || LOGO} alt="" className={p.images[0] ? '' : 'dim'} />
                   </div>
                   <div className="row-info">
                     <p className="line-name">{p.name}{p.demo && <span className="tag">Ejemplo</span>}{p.hidden && <span className="tag">Oculto</span>}</p>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { seriesOf } from '../lib/data'
+import { LOGO } from '../lib/assets'
 
 const LINKS = [
   ['#/', 'Inicio', 'home'],
@@ -80,7 +81,7 @@ export default function Header({ route, products, cartCount, onCart }) {
     <header className={`topbar ${open ? 'is-open' : ''}`} onMouseLeave={hideMega}>
       <div className="wrap topbar-in">
         <a className="brand" href="#/" aria-label="Zona Originals, inicio" onClick={closeAll}>
-          <img src="/logo.png" alt="" width="28" height="28" />
+          <img src={LOGO} alt="" width="28" height="28" />
           <span>Zona Originals</span>
         </a>
 

@@ -1,4 +1,5 @@
 import { waLink } from '../lib/data'
+import { LOGO } from '../lib/assets'
 
 const YEAR = new Date().getFullYear()
 
@@ -10,7 +11,7 @@ export function Footer({ settings }) {
         <div className="footer-grid">
           <div>
             <a className="brand" href="#/">
-              <img src="/logo.png" alt="" width="28" height="28" />
+              <img src={LOGO} alt="" width="28" height="28" />
               <span>Zona Originals</span>
             </a>
             <p className="footer-text">iPhone y accesorios originales.</p>
