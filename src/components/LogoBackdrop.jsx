@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { LOGO } from '../lib/assets'
 
 // Logo gigante de fondo: sigue el mouse en 3D, gira despacio y se desplaza al hacer scroll.
-export default function LogoBackdrop() {
+export default function LogoBackdrop({ className = '', drift = 0.28 }) {
   const ref = useRef(null)
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function LogoBackdrop() {
       cy += (ty - cy) * 0.06
       const y = window.scrollY
       el.style.transform =
-        `translate3d(${cx * -36}px, ${cy * -26 + y * 0.28}px, 0) ` +
+        `translate3d(${cx * -36}px, ${cy * -26 + y * drift}px, 0) ` +
         `rotateY(${cx * 16}deg) rotateX(${-cy * 12}deg) rotateZ(${t * 0.004 + y * 0.03}deg)`
     }
 
@@ -44,10 +44,10 @@ export default function LogoBackdrop() {
       io.disconnect()
       window.removeEventListener('pointermove', onMove)
     }
-  }, [])
+  }, [drift])
 
   return (
-    <div className="backdrop" aria-hidden="true">
+    <div className={`backdrop ${className}`} aria-hidden="true">
       <img ref={ref} src={LOGO} alt="" draggable="false" />
     </div>
   )

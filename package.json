@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/jmriosm-ship-it/zona_originals_co.git",
+  "homepage": "https://github.com/jmriosm-ship-it/Zona-originals.git",
   "scripts": {
     "predeploy": "npm run build",
     "deploy":"gh-pages -d dist",

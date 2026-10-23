@@ -1,9 +1,9 @@
-import { waLink } from '../lib/data'
+import { categoryHref, waLink } from '../lib/data'
 import { LOGO } from '../lib/assets'
 
 const YEAR = new Date().getFullYear()
 
-export function Footer({ settings }) {
+export function Footer({ settings, categories = [] }) {
   const { whatsapp, tiktok, city } = settings
   return (
     <footer className="footer">
@@ -21,9 +21,13 @@ export function Footer({ settings }) {
             <p>
               <a href="#/celulares">Celulares</a>
             </p>
-            <p>
-              <a href="#/accesorios">Accesorios</a>
-            </p>
+            {categories
+              .filter((c) => c.id !== 'iphone')
+              .map((c) => (
+                <p key={c.id}>
+                  <a href={categoryHref(c.id)}>{c.label}</a>
+                </p>
+              ))}
             <p>
               <a href="#/credito">Crédito</a>
             </p>

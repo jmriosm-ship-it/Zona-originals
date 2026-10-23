@@ -1,6 +1,65 @@
-export const CATEGORIES = [
-  { id: 'iphone', label: 'iPhone' },
-  { id: 'accesorio', label: 'Accesorios' },
+// La tienda arranca sin categorías: se crean desde el panel de administración.
+// Una categoría llamada "iPhone" activa la página de celulares y el modelo 3D del teléfono.
+// Categorías fijas: siempre existen, tienen su propia página al estilo Apple y no se pueden eliminar.
+export const BUILTIN_CATEGORIES = [
+  { id: 'macbook', label: 'MacBook', specLabel: 'Chip', locked: true },
+  { id: 'reloj', label: 'Relojes', specLabel: 'Tamaño', locked: true },
+  { id: 'colonias', label: 'Colonias', specLabel: 'Presentación (ml)', locked: true },
+]
+
+export const DEFAULT_CATEGORIES = [...BUILTIN_CATEGORIES]
+
+// Textos de la página de cada categoría fija.
+export const SHOWCASES = {
+  macbook: {
+    eyebrow: 'MacBook',
+    title: 'Hecha para rendir.',
+    lead: 'MacBook originales con garantía, crédito y atención directa en el local.',
+    models: 'Elige tu MacBook.',
+    tilesTitle: 'Lo principal.',
+  },
+  reloj: {
+    eyebrow: 'Apple Watch',
+    title: 'Tu día, en la muñeca.',
+    lead: 'Relojes Apple originales para tu salud, tu actividad y tus notificaciones.',
+    models: 'Elige tu reloj.',
+    tilesTitle: 'Lo principal.',
+  },
+  colonias: {
+    eyebrow: 'Colonias',
+    title: 'Tu aroma, tu sello.',
+    lead: 'Colonias y perfumes originales para cada ocasión, con atención directa en el local.',
+    models: 'Elige tu colonia.',
+    tilesTitle: 'Lo principal.',
+  },
+}
+
+export const slugify = (s) =>
+  s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+// "#/celulares" para iPhone y "#/c/<id>" para el resto.
+export const categoryHref = (id) => (id === 'iphone' ? '#/celulares' : id === 'accesorio' ? '#/accesorios' : `#/c/${id}`)
+
+// Caras de la caja 3D. El frente se guarda en boxImage y el resto en boxFaces.
+export const BOX_FACES = [
+  ['front', 'Frente'],
+  ['back', 'Atrás'],
+  ['left', 'Lado izquierdo'],
+  ['right', 'Lado derecho'],
+  ['top', 'Arriba'],
+  ['bottom', 'Abajo'],
+]
+
+// Grosor de la caja 3D respecto a su ancho.
+export const BOX_DEPTHS = [
+  { id: 'delgada', label: 'Delgada (reloj, cargador)', ratio: 0.16 },
+  { id: 'normal', label: 'Normal (celular)', ratio: 0.34 },
+  { id: 'gruesa', label: 'Gruesa (perfume, MacBook)', ratio: 0.7 },
 ]
 
 export const CONDITIONS = ['Nuevo', 'Open box', 'Usado']
@@ -9,8 +68,37 @@ export const DEFAULT_SETTINGS = {
   whatsapp: '573142757163',
   tiktok: 'zona_originals_co',
   city: 'Ocaña, Norte de Santander',
-  address: '',
+  address: 'Cra. 12 # 11-34, Plaza Real',
+  // Punto exacto del mapa (latitud, longitud): con esto Google muestra el marcador rojo.
+  mapCoords: '8.234645, -73.35324',
   pin: '',
+  // Simulador de crédito: valores de referencia que se ajustan en el panel (Ajustes).
+  creditRates: '1, 2',
+  creditDown: '30',
+  warranty:
+    'Nuestra garantía cubre:\n• Mal funcionamiento del equipo.\n• IMEI (no aplica en equipos no registrados).\n• Mal rendimiento de la batería con buen uso (solo si tiene el cargador original).\n\nNo hay garantía por:\n• Daños de display.\n• Humedad.\n• Golpes.\n• Bloqueos de teléfonos no registrados.\n• Daños físicos del equipo.\n• Batería por mal uso.\n• Teléfonos abiertos.',
+  instagram: 'zona_originals_col_',
+  tiktokVideos: '',
+  hours: '',
+}
+
+// Tasas mensuales (%) disponibles en el simulador: "1, 2" -> [1, 2]. Acepta también la tasa única de versiones anteriores.
+export const creditRatesOf = (settings) => {
+  const list = String(settings.creditRates ?? settings.creditRate ?? '')
+    .split(/[,;\s]+/)
+    .map((n) => Number(n.replace(',', '.')))
+    .filter((n) => Number.isFinite(n) && n >= 0 && n <= 20)
+  return list.length ? [...new Set(list)] : [2]
+}
+
+// Cuota fija mensual (sistema francés) para un valor financiado a "months" cuotas con tasa mensual en %.
+export const creditPlan = (price, downPct, months, ratePct) => {
+  const down = Math.round((price * downPct) / 100)
+  const financed = price - down
+  const i = ratePct / 100
+  const monthly = i > 0 ? (financed * i) / (1 - (1 + i) ** -months) : financed / months
+  const total = down + monthly * months
+  return { down, financed, monthly, total, interest: total - price }
 }
 
 const cop = new Intl.NumberFormat('es-CO', {
@@ -59,40 +147,18 @@ const DEFAULT_HEX = '#2b2b2d'
 export const colorsOf = (p) =>
   p.colors?.length ? p.colors : [{ name: p.color || 'Estándar', hex: DEFAULT_HEX }]
 
-export const has3d = (p) => p.category === 'iphone' && p.model3d !== false
+// Cantidad disponible de un color; los productos viejos sin cantidad por color usan el stock general.
+export const colorStock = (p, c) => Math.max(0, Number(c?.stock ?? p.stock) || 0)
 
-const demo = (name, category, price, storage, colors, description, extra = {}) => ({
-  id: uid(),
-  name,
-  category,
-  price,
-  storage,
-  color: colors[0].name,
-  colors,
-  condition: 'Nuevo',
-  description,
-  stock: 3,
-  credit: category === 'iphone',
-  model3d: category === 'iphone',
-  images: [],
-  hidden: false,
-  demo: true,
-  createdAt: Date.now(),
-  ...extra,
-})
+// Color con unidades disponibles (el primero), o el primero si todos están agotados.
+export const firstInStock = (p) => colorsOf(p).find((c) => colorStock(p, c) > 0) ?? colorsOf(p)[0]
 
-const pick = (...names) => COLOR_PRESETS.filter((c) => names.includes(c.name))
+// El celular 3D se arma con las fotos de pantalla y/o tapa que sube el administrador.
+// Tipo de modelo 3D: celular, laptop o reloj. Si el producto no lo define, sale de su categoría.
+// 'box' = sin modelo de dispositivo: solo se usa la caja en 3D (colonias).
+export const modelKind = (p) =>
+  p.kind || (p.category === 'macbook' ? 'laptop' : p.category === 'reloj' ? 'watch' : p.category === 'colonias' ? 'box' : 'phone')
 
-// Productos de ejemplo para que la tienda no se vea vacía. Se borran desde el panel.
-export const SEED_PRODUCTS = [
-  demo('iPhone 16 Pro Max', 'iphone', 6200000, '256 GB', pick('Titanio desierto', 'Titanio natural', 'Titanio blanco', 'Titanio negro'), 'Pantalla Super Retina XDR de 6,9", chip A18 Pro y sistema de cámaras Pro.', { highlights: ["Pantalla Super Retina XDR de 6,9\"","Chip A18 Pro","Cámara principal de 48 MP","Zoom óptico 5x","Puerto USB-C","Marco de titanio"] }),
-  demo('iPhone 16 Pro', 'iphone', 5200000, '128 GB', pick('Titanio negro', 'Titanio blanco', 'Titanio natural', 'Titanio desierto'), 'Pantalla de 6,3", chip A18 Pro y control de cámara.', { highlights: ["Pantalla de 6,3\"","Chip A18 Pro","Cámara principal de 48 MP","Control de cámara","Puerto USB-C","Marco de titanio"] }),
-  demo('iPhone 15 Pro Max', 'iphone', 5000000, '256 GB', pick('Titanio natural', 'Azul', 'Titanio blanco', 'Titanio negro'), 'Diseño en titanio, chip A17 Pro y zoom óptico 5x.', { highlights: ["Pantalla Super Retina XDR de 6,7\"","Chip A17 Pro","Zoom óptico 5x","Puerto USB-C","Marco de titanio","Botón de acción"] }),
-  demo('iPhone 15', 'iphone', 3300000, '128 GB', pick('Negro', 'Azul claro', 'Verde', 'Amarillo', 'Rosa'), 'Dynamic Island, cámara principal de 48 MP y USB-C.', { highlights: ["Pantalla Super Retina XDR de 6,1\"","Chip A16 Bionic","Cámara principal de 48 MP","Dynamic Island","Puerto USB-C"] }),
-  demo('iPhone 14 Pro', 'iphone', 3500000, '128 GB', pick('Morado', 'Negro', 'Blanco'), 'Chip A16 Bionic, pantalla ProMotion y Always-On.', { highlights: ["Pantalla ProMotion de 6,1\"","Chip A16 Bionic","Cámara principal de 48 MP","Dynamic Island","Pantalla siempre activa"] }),
-  demo('iPhone 14', 'iphone', 2700000, '128 GB', pick('Negro', 'Azul', 'Morado', 'Rojo'), 'Chip A15 Bionic, modo Acción y detección de choques.', { highlights: ["Pantalla Super Retina XDR de 6,1\"","Chip A15 Bionic","Modo Acción","Detección de choques","Cámara dual de 12 MP"] }),
-  demo('iPhone 13', 'iphone', 2200000, '128 GB', pick('Negro', 'Azul', 'Rosa', 'Rojo'), 'Chip A15 Bionic, modo Cine y batería para todo el día.', { highlights: ["Pantalla Super Retina XDR de 6,1\"","Chip A15 Bionic","Modo Cine","Cámara dual de 12 MP","Batería para todo el día"] }),
-  demo('Cargador original 20W USB-C', 'accesorio', 90000, '', pick('Blanco'), 'Adaptador de corriente original para carga rápida.'),
-  demo('Cable USB-C original 1 m', 'accesorio', 70000, '', pick('Blanco'), 'Cable original para carga y sincronización.'),
-  demo('AirPods originales', 'accesorio', 780000, '', pick('Blanco'), 'Audio inalámbrico original con estuche de carga.'),
-]
+export const MODEL_LABELS = { phone: 'Celular 3D', laptop: 'MacBook 3D', watch: 'Reloj 3D' }
+
+export const has3d = (p) => Boolean(p.phoneScreen || p.phoneBack) && modelKind(p) !== 'box'

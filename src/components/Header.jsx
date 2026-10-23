@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import { seriesOf } from '../lib/data'
+import { BUILTIN_CATEGORIES, categoryHref, seriesOf } from '../lib/data'
 import { LOGO } from '../lib/assets'
 
 const LINKS = [
   ['#/', 'Inicio', 'home'],
   ['#/celulares', 'Celulares', 'celulares'],
-  ['#/accesorios', 'Accesorios', 'accesorios'],
+  ['#/accesorios', 'Tienda', 'tienda'],
   ['#/credito', 'Crédito', 'credito'],
   ['#/contacto', 'Contacto', 'contacto'],
 ]
 
 // Contenido del menú desplegable de cada sección (como en Apple: enlaces grandes + más enlaces).
-function buildMega(key, products) {
+function buildMega(key, products, categories) {
   const visible = products.filter((p) => !p.hidden)
   if (key === 'celulares') {
     const series = [...new Set(visible.filter((p) => p.category === 'iphone').map(seriesOf).filter(Boolean))].sort((a, b) => b - a)
@@ -26,10 +26,9 @@ function buildMega(key, products) {
       ],
     }
   }
-  const accessories = visible.filter((p) => p.category === 'accesorio').slice(0, 6)
   return {
-    label: 'Conoce los accesorios',
-    big: [['#/accesorios', 'Ver todos los accesorios'], ...accessories.map((p) => [`#/p/${encodeURIComponent(p.id)}`, p.name])],
+    label: 'Compra por categoría',
+    big: categories.filter((c) => c.id !== 'iphone' && !BUILTIN_IDS.includes(c.id)).map((c) => [categoryHref(c.id), c.label]),
     moreLabel: 'Más para tu iPhone',
     more: [
       ['#/celulares', 'Celulares'],
@@ -39,9 +38,17 @@ function buildMega(key, products) {
   }
 }
 
-const MEGA_KEYS = ['celulares', 'accesorios']
+const MEGA_KEYS = ['celulares', 'tienda']
+const BUILTIN_IDS = BUILTIN_CATEGORIES.map((b) => b.id)
 
-export default function Header({ route, products, cartCount, onCart }) {
+export default function Header({ route, products, categories, cartCount, onCart }) {
+  const hasPhones = categories.some((c) => c.id === 'iphone')
+  const hasStore = categories.some((c) => c.id !== 'iphone' && !BUILTIN_IDS.includes(c.id))
+  const base = LINKS.filter(([, , key]) => (key === 'tienda' ? hasStore : key !== 'celulares' || hasPhones))
+  // MacBook y Relojes tienen su propio acceso en el menú, justo después de Celulares.
+  const fixed = categories.filter((c) => BUILTIN_IDS.includes(c.id)).map((c) => [categoryHref(c.id), c.label, c.id])
+  const at = base.findIndex(([, , key]) => key === 'celulares')
+  const links = at >= 0 ? [...base.slice(0, at + 1), ...fixed, ...base.slice(at + 1)] : [base[0], ...fixed, ...base.slice(1)]
   const [open, setOpen] = useState(false)
   const [mega, setMega] = useState(null)
   const timer = useRef(0)
@@ -74,8 +81,9 @@ export default function Header({ route, products, cartCount, onCart }) {
   }
 
   // En la ficha de producto se resalta la sección a la que pertenece.
-  const active = route.name === 'product' ? route.section : route.name
-  const content = mega ? buildMega(mega, products) : null
+  const sectionOf = (id) => (id === 'iphone' ? 'celulares' : BUILTIN_IDS.includes(id) ? id : 'tienda')
+  const active = route.name === 'product' ? sectionOf(route.section) : route.name === 'category' ? sectionOf(route.id) : route.name === 'accesorios' ? 'tienda' : route.name
+  const content = mega ? buildMega(mega, products, categories) : null
 
   return (
     <header className={`topbar ${open ? 'is-open' : ''}`} onMouseLeave={hideMega}>
@@ -86,7 +94,7 @@ export default function Header({ route, products, cartCount, onCart }) {
         </a>
 
         <nav className="topnav" id="menu" aria-label="Principal">
-          {LINKS.map(([href, label, key]) => {
+          {links.map(([href, label, key]) => {
             const hasMega = MEGA_KEYS.includes(key)
             return (
               <a

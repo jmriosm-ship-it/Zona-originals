@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fmtPrice, waLink } from '../lib/data'
+import { colorStock, colorsOf, fmtPrice, waLink } from '../lib/data'
 import { LOGO } from '../lib/assets'
 
 export default function Cart({ items, whatsapp, onClose, onQty, onClear }) {
@@ -19,8 +19,8 @@ export default function Cart({ items, whatsapp, onClose, onQty, onClear }) {
 
   const message = () => {
     const lines = items.map(
-      ({ product: p, qty }) =>
-        `• ${qty} x ${p.name}${p.storage ? ` ${p.storage}` : ''}${p.color ? ` ${p.color}` : ''} — ${fmtPrice(p.price * qty)}`,
+      ({ product: p, color, qty }) =>
+        `• ${qty} x ${p.name}${p.storage ? ` ${p.storage}` : ''}${color ? ` ${color}` : ''} — ${fmtPrice(p.price * qty)}`,
     )
     return [
       'Hola Zona Originals, quiero hacer este pedido:',
@@ -47,20 +47,20 @@ export default function Cart({ items, whatsapp, onClose, onQty, onClear }) {
         ) : (
           <>
             <ul className="lines">
-              {items.map(({ product: p, qty }) => (
-                <li key={p.id} className="line">
+              {items.map(({ key, product: p, color, qty }) => (
+                <li key={key} className="line">
                   <div className="line-img">
                     {p.images[0] ? <img src={p.images[0]} alt="" /> : <img src={LOGO} alt="" className="dim" />}
                   </div>
                   <div className="line-info">
                     <p className="line-name">{p.name}</p>
-                    <p className="card-spec">{[p.storage, p.color].filter(Boolean).join(' · ')}</p>
+                    <p className="card-spec">{[p.storage, color].filter(Boolean).join(' · ')}</p>
                     <div className="qty">
-                      <button onClick={() => onQty(p.id, qty - 1)} aria-label="Quitar uno">
+                      <button onClick={() => onQty(key, qty - 1)} aria-label="Quitar uno">
                         −
                       </button>
                       <span aria-live="polite">{qty}</span>
-                      <button onClick={() => onQty(p.id, qty + 1)} disabled={qty >= p.stock} aria-label="Agregar uno">
+                      <button onClick={() => onQty(key, qty + 1)} disabled={qty >= colorStock(p, colorsOf(p).find((c) => c.name === color))} aria-label="Agregar uno">
                         +
                       </button>
                     </div>

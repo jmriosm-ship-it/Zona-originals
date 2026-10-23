@@ -1534,7 +1534,7 @@ textarea.field {
 }
 
 .page {
-  animation: page-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation: page-in 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
 .rise {
@@ -1849,8 +1849,8 @@ textarea.field {
   width: 100%;
   height: 100%;
   border: 0;
-  /* Tonos oscuros para que combine con la tienda */
-  filter: grayscale(1) invert(0.92) contrast(0.95);
+  /* Mapa a todo color, tal como lo muestra Google */
+  filter: none;
 }
 
 .map-link {
@@ -2261,4 +2261,1024 @@ textarea.field {
   .stage {
     transition: none;
   }
+}
+
+/* Administrador: filas de categorías */
+.cat-row .row-info {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.cat-row .row-info .field {
+  width: 100%;
+}
+
+.cat-row .row-info label {
+  display: grid;
+  gap: 4px;
+}
+
+.row.cat-row {
+  grid-template-columns: 1fr auto;
+}
+
+/* Administrador: marcar las esquinas de la caja */
+.box-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.box-editor-stage {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  touch-action: none;
+  user-select: none;
+}
+
+.box-editor-stage img {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 12px;
+}
+
+.box-editor-stage svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.box-editor-stage polygon {
+  fill: rgba(255, 255, 255, 0.12);
+  stroke: #fff;
+  stroke-width: 0.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.box-handle {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: rgba(0, 0, 0, 0.55);
+  cursor: grab;
+  touch-action: none;
+}
+
+/* Cantidad por color */
+.color-row .color-qty {
+  width: 84px;
+  flex: none;
+}
+
+.stock-left {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ash);
+  text-align: center;
+}
+
+.stock-left.low {
+  color: #e8b04a;
+}
+
+.stock-left.out {
+  color: #e5675e;
+}
+
+.swatch.soldout {
+  opacity: 0.35;
+}
+
+.color-row {
+  grid-template-columns: 44px 1fr 84px auto;
+}
+
+/* Logos grandes como el de la portada: uno en la esquina superior izquierda del visor y otro en la inferior derecha */
+.stage-wrap {
+  --big: clamp(260px, 34vw, 520px);
+  position: relative;
+  overflow-x: clip;
+}
+
+.stage-wrap .stage {
+  position: relative;
+  z-index: 1;
+}
+
+.backdrop-corner {
+  inset: auto;
+  z-index: 2;
+  display: block;
+  width: var(--big);
+  height: var(--big);
+}
+
+.backdrop-corner img {
+  width: 100%;
+  opacity: 0.3;
+}
+
+.backdrop-tl {
+  top: 0;
+  left: 0;
+  transform: translate(-30%, -26%);
+}
+
+.backdrop-br {
+  right: 0;
+  bottom: 0;
+  transform: translate(30%, 26%);
+}
+
+/* Caras de la caja 3D en el administrador */
+.face-slot {
+  display: grid;
+  gap: 6px;
+}
+
+.more-faces {
+  margin-top: 12px;
+}
+
+.more-faces summary {
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--ash);
+  margin-bottom: 10px;
+}
+
+/* Producto agotado */
+.tag-out {
+  color: #e5675e;
+  border-color: #e5675e;
+}
+
+.card-media.is-out img,
+.card-media.is-out svg {
+  opacity: 0.45;
+  filter: grayscale(0.6);
+}
+
+/* Tarjetas del inicio con acción */
+.step-link {
+  display: block;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  border: 0;
+  cursor: pointer;
+  transition: opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.2s;
+}
+
+.step-link.in:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 0 1px var(--slate);
+}
+
+.step-go {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--porcelain);
+}
+
+/* Ventana de información (garantía) */
+.modal {
+  width: min(640px, 100%);
+  max-height: min(80vh, 720px);
+  overflow-y: auto;
+  padding: 24px;
+  border-radius: var(--r-card);
+  background: var(--carbon);
+  box-shadow: 0 0 0 1px var(--steel);
+}
+
+.modal-text {
+  margin: 0 0 14px;
+  line-height: 1.55;
+  color: var(--ash);
+  white-space: pre-line;
+}
+
+/* Simulador de crédito */
+.sim {
+  display: grid;
+  gap: 20px;
+}
+
+.sim input[type='range'] {
+  width: 100%;
+  margin-top: 10px;
+  accent-color: #fff;
+}
+
+.sim .facts {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.sim .fact-main strong {
+  font-size: 1.4em;
+}
+
+.sim-note {
+  margin: 0;
+  text-align: center;
+}
+
+/* Sección "Pasa por la tienda" */
+.visit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+}
+
+.visit-info {
+  display: grid;
+  gap: 14px;
+  justify-items: start;
+  text-align: left;
+}
+
+.visit-title {
+  margin: 0;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 1.02;
+}
+
+.visit-address {
+  margin: 6px 0 0;
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.visit-hours {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ash);
+}
+
+.visit-hours li {
+  padding-top: 10px;
+  border-top: 1px solid var(--steel);
+}
+
+.visit-hours li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.visit-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin-top: 10px;
+}
+
+.visit-links a {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+
+.visit-links a:hover {
+  opacity: 0.7;
+}
+
+.visit .map {
+  margin: 0;
+  min-height: 380px;
+}
+
+@media (max-width: 860px) {
+  .visit {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Botones flotantes de redes */
+.social-float {
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 60;
+  display: grid;
+  gap: 10px;
+}
+
+.social-float a {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: #fff;
+  background: #000;
+  box-shadow: 0 0 0 2px #fff, 0 10px 24px rgba(0, 0, 0, 0.45);
+  animation: social-bob 3.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -1.2s);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.social-float a:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px #fff, 0 14px 30px rgba(0, 0, 0, 0.55);
+}
+
+.social-float svg {
+  width: 24px;
+  height: 24px;
+}
+
+@keyframes social-bob {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -5px; }
+}
+
+@media (max-width: 600px) {
+  .social-float a {
+    width: 46px;
+    height: 46px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-float a {
+    animation: none;
+  }
+}
+
+/* Portada con celular 3D al lado del título */
+.hero-split .hero-in {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: clamp(16px, 4vw, 56px);
+  text-align: left;
+}
+
+.hero-split .hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-split .display {
+  font-size: clamp(40px, 5.4vw, 84px);
+}
+
+.hero-stage {
+  position: relative;
+  display: block;
+  height: clamp(420px, 62vh, 640px);
+  color: inherit;
+  text-decoration: none;
+}
+
+.hero-stage .viewer {
+  height: 100%;
+}
+
+.hero-stage .hint {
+  display: none;
+}
+
+.hero-stage-tag {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+@media (max-width: 860px) {
+  .hero-split .hero-in {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-split .hero-copy {
+    align-items: center;
+  }
+
+  .hero-stage {
+    height: clamp(360px, 56vh, 480px);
+  }
+}
+
+/* Zoom del visor 3D y esqueleto de carga */
+.viewer-zoom {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  z-index: 2;
+  display: grid;
+  gap: 6px;
+}
+
+.viewer-zoom button {
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--porcelain);
+  background: rgba(66, 66, 69, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transition: background 0.2s;
+}
+
+.viewer-zoom button:hover {
+  background: rgba(110, 110, 115, 0.8);
+}
+
+.hero-stage .viewer-zoom {
+  display: none;
+}
+
+.viewer-skeleton {
+  position: absolute;
+  inset: 12% 30%;
+  border-radius: 28px;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0.04) 20%, rgba(255, 255, 255, 0.12) 40%, rgba(255, 255, 255, 0.04) 60%);
+  background-size: 220% 100%;
+  animation: skeleton 1.4s linear infinite;
+}
+
+@keyframes skeleton {
+  from { background-position: 120% 0; }
+  to { background-position: -120% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewer-skeleton {
+    animation: none;
+  }
+}
+
+/* Botón de compra en Apple Blue: solo para comprar */
+.btn-buy {
+  background: #0071e3;
+  color: #fff;
+}
+
+.btn-buy:hover:not(:disabled) {
+  background: #0077ed;
+}
+
+.btn-buy:disabled {
+  background: var(--steel);
+  color: var(--ash);
+}
+
+/* Sellos de confianza (como los tiles de métricas de Apple: negros, 28px, sin sombra) */
+.trust {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.trust-tile {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  min-height: 130px;
+  padding: 24px;
+  border: 0;
+  border-radius: var(--r-card);
+  font: inherit;
+  text-align: center;
+  text-decoration: none;
+  color: var(--porcelain);
+  background: var(--obsidian);
+  box-shadow: 0 0 0 1px var(--steel);
+}
+
+.trust-tile strong {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.007em;
+}
+
+.trust-tile span {
+  font-size: 14px;
+  color: var(--ash);
+}
+
+.trust-link {
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.trust-link:hover {
+  box-shadow: 0 0 0 1px var(--slate);
+  transform: translateY(-3px);
+}
+
+/* Especificaciones */
+.specs dl {
+  display: grid;
+  margin: 24px 0 0;
+}
+
+.specs dl > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.4fr) 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--steel);
+}
+
+.specs dt {
+  color: var(--ash);
+}
+
+.specs dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .specs dl > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+/* Barra fija de compra (como la barra local oscura de Apple) */
+.buybar {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: min(720px, calc(100% - 24px));
+  padding: 10px 10px 10px 22px;
+  border-radius: var(--r-nav);
+  background: rgba(14, 14, 14, 0.86);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 0 0 1px #282828;
+  transform: translate(-50%, 140%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.3s;
+}
+
+.buybar.on {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.buybar-info {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+}
+
+.buybar-info strong {
+  overflow: hidden;
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.21;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.buybar-info span {
+  font-size: 13px;
+  color: var(--ash);
+}
+
+.buybar-price {
+  padding: 8px 14px;
+  border-radius: 36px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: rgba(66, 66, 69, 0.72);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.has-buybar .social-float {
+  bottom: 92px;
+}
+
+@media (max-width: 600px) {
+  .buybar {
+    gap: 10px;
+    padding-left: 16px;
+  }
+
+  .buybar-info strong {
+    font-size: 16px;
+  }
+
+  .buybar-price {
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+}
+
+/* Filtros y comparación del catálogo */
+.filters {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0 4px;
+  padding-top: 18px;
+  border-top: 1px solid var(--steel);
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 28px;
+}
+
+.price-filter {
+  display: grid;
+  gap: 6px;
+  min-width: 220px;
+  font-size: 14px;
+  color: var(--ash);
+}
+
+.price-filter input[type='range'] {
+  width: 100%;
+  accent-color: #fff;
+}
+
+.results {
+  margin: 16px 0 8px;
+  font-size: 13px;
+  color: var(--ash);
+}
+
+.card {
+  position: relative;
+}
+
+.card-compare {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--porcelain);
+  background: rgba(66, 66, 69, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.card:hover .card-compare,
+.card-compare:focus-visible,
+.card-compare.on {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .card-compare {
+    opacity: 1;
+  }
+}
+
+.card-compare.on {
+  background: #0071e3;
+  box-shadow: none;
+}
+
+.card-compare:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.comparebar {
+  position: fixed;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(640px, calc(100% - 24px));
+  padding: 10px 12px 10px 22px;
+  border-radius: var(--r-nav);
+  background: rgba(14, 14, 14, 0.9);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 0 0 1px #282828;
+  transform: translateX(-50%);
+  animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.comparebar span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.comparebar em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--ash);
+}
+
+.compare-wrap {
+  overflow-x: auto;
+}
+
+.compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.compare th,
+.compare td {
+  padding: 12px 10px;
+  text-align: left;
+  vertical-align: top;
+  border-top: 1px solid var(--steel);
+}
+
+.compare thead th {
+  border-top: 0;
+  font-size: 17px;
+}
+
+.compare thead img {
+  width: 72px;
+  margin-bottom: 8px;
+  border-radius: 14px;
+}
+
+.compare tbody th {
+  font-weight: 400;
+  color: var(--ash);
+  white-space: nowrap;
+}
+
+/* Fotos que aparecen con fundido y brillo que sigue al mouse */
+.card-media img {
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.card-media img.loaded {
+  opacity: 1;
+}
+
+.card-media:has(img:not(.loaded)) {
+  background: linear-gradient(100deg, var(--graphite) 20%, #1b1b1d 40%, var(--graphite) 60%);
+  background-size: 220% 100%;
+  animation: skeleton 1.4s linear infinite;
+}
+
+.card:hover,
+.path:hover,
+.step-link:hover,
+.trust-link:hover,
+.gen:hover {
+  background-image: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.07), transparent 65%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-media:has(img:not(.loaded)) {
+    animation: none;
+  }
+}
+
+/* Videos de TikTok */
+.videos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  justify-items: center;
+  margin-top: 8px;
+}
+
+.video {
+  width: 100%;
+  max-width: 330px;
+  aspect-ratio: 9 / 16;
+  border: 0;
+  border-radius: var(--r-card);
+  background: var(--graphite);
+}
+
+/* Páginas de MacBook y Relojes, al estilo de Apple: escenario negro, titular grande, marcos de 28px */
+.showcase-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(40px, 8vw, 88px) 0 clamp(40px, 6vw, 72px);
+  text-align: center;
+}
+
+.showcase-in {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.showcase-eyebrow {
+  margin: 0 0 12px;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: 0.011em;
+}
+
+.showcase-in .display {
+  font-size: clamp(40px, 8vw, 80px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.showcase-in .lead {
+  max-width: 560px;
+  margin-bottom: 0;
+}
+
+.showcase-stage {
+  width: min(1040px, 100%);
+  margin-top: clamp(28px, 5vw, 56px);
+}
+
+.showcase-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: clamp(260px, 46vw, 520px);
+  overflow: hidden;
+  color: inherit;
+  border-radius: var(--r-card);
+  background: var(--obsidian);
+  box-shadow: 0 0 0 1px var(--steel);
+}
+
+.showcase-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.showcase-media .ph {
+  height: 60%;
+}
+
+.showcase-media .viewer {
+  width: 100%;
+  height: 100%;
+}
+
+.showcase-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.showcase-name {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: 0.007em;
+}
+
+.glass-pill {
+  padding: 9px 18px;
+  border-radius: 36px;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(66, 66, 69, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.showcase-empty {
+  display: grid;
+  gap: 18px;
+  justify-items: center;
+  width: min(720px, 100%);
+  margin-top: 40px;
+  padding: 48px 24px;
+  border-radius: var(--r-card);
+  background: var(--carbon);
+}
+
+.showcase-empty p {
+  margin: 0;
+  font-size: 21px;
+  color: var(--ash);
+}
+
+.showcase-h2 {
+  margin: 0 0 28px;
+  font-size: clamp(28px, 4.4vw, 40px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.tile {
+  display: grid;
+  align-content: end;
+  gap: 8px;
+  min-height: 200px;
+  padding: 28px;
+  border-radius: var(--r-card);
+  background: var(--obsidian);
+  box-shadow: 0 0 0 1px var(--steel);
+}
+
+.tile strong {
+  font-size: clamp(26px, 3vw, 40px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: 0.004em;
+}
+
+.tile span {
+  font-size: 14px;
+  color: var(--ash);
+}
+
+.showcase-cta {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  text-align: center;
+}
+
+/* Portada: foto del más vendido y etiqueta */
+.hero-photo {
+  width: 100%;
+  height: calc(100% - 52px);
+  object-fit: contain;
+}
+
+.hero-stage-tag em {
+  margin-right: 8px;
+  font-style: normal;
+  color: #2997ff;
 }

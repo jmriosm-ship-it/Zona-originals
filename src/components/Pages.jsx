@@ -1,15 +1,11 @@
 import { useMemo, useState } from 'react'
 import { seriesOf, waLink } from '../lib/data'
-import ProductCard from './ProductCard'
+import Catalog, { Grid } from './Catalog'
 import Reveal from './Reveal'
 import LogoBackdrop from './LogoBackdrop'
-import MapEmbed, { mapLink } from './MapEmbed'
-
-const SORTS = {
-  recent: 'Más recientes',
-  asc: 'Precio: menor a mayor',
-  desc: 'Precio: mayor a menor',
-}
+import { mapLink } from './MapEmbed'
+import Visit from './Visit'
+import CreditSimulator from './CreditSimulator'
 
 export function PageHead({ eyebrow, title, subtitle }) {
   return (
@@ -34,39 +30,15 @@ export function PageHead({ eyebrow, title, subtitle }) {
   )
 }
 
-export function Grid({ products, onOpen, onAdd, empty = 'No encontramos productos con ese filtro.' }) {
-  if (!products.length) return <p className="empty">{empty}</p>
-  return (
-    <div className="grid">
-      {products.map((p, i) => (
-        <ProductCard key={p.id} product={p} index={i} onOpen={onOpen} onAdd={onAdd} />
-      ))}
-    </div>
-  )
-}
-
 export function PhonesPage({ products, onOpen, onAdd, initialSerie }) {
   const [serie, setSerie] = useState(initialSerie || 'todos')
-  const [query, setQuery] = useState('')
-  const [sort, setSort] = useState('recent')
 
   const iphones = useMemo(() => products.filter((p) => !p.hidden && p.category === 'iphone'), [products])
   const series = useMemo(
     () => [...new Set(iphones.map(seriesOf).filter(Boolean))].sort((a, b) => b - a),
     [iphones],
   )
-
-  const shown = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    const list = iphones.filter(
-      (p) =>
-        (serie === 'todos' || seriesOf(p) === serie) &&
-        (!q || `${p.name} ${p.color} ${p.storage}`.toLowerCase().includes(q)),
-    )
-    if (sort === 'asc') return [...list].sort((a, b) => a.price - b.price)
-    if (sort === 'desc') return [...list].sort((a, b) => b.price - a.price)
-    return list
-  }, [iphones, serie, query, sort])
+  const bySerie = useMemo(() => iphones.filter((p) => serie === 'todos' || seriesOf(p) === serie), [iphones, serie])
 
   return (
     <>
@@ -97,26 +69,20 @@ export function PhonesPage({ products, onOpen, onAdd, initialSerie }) {
       <section className="section">
         <div className="wrap">
           <Reveal className="panel">
-            <div className="toolbar">
-              <div className="pills" role="group" aria-label="Filtrar por generación">
-                {['todos', ...series].map((s) => (
-                  <button key={s} className={`pill ${serie === s ? 'on' : ''}`} aria-pressed={serie === s} onClick={() => setSerie(s)}>
-                    {s === 'todos' ? 'Todos' : `iPhone ${s}`}
-                  </button>
-                ))}
-              </div>
-              <div className="tools">
-                <input className="search" type="search" placeholder="Buscar modelo" aria-label="Buscar modelo" value={query} onChange={(e) => setQuery(e.target.value)} />
-                <select className="select" aria-label="Ordenar" value={sort} onChange={(e) => setSort(e.target.value)}>
-                  {Object.entries(SORTS).map(([k, v]) => (
-                    <option key={k} value={k}>
-                      {v}
-                    </option>
+            <Catalog
+              products={bySerie}
+              onOpen={onOpen}
+              onAdd={onAdd}
+              lead={
+                <div className="pills" role="group" aria-label="Filtrar por generación">
+                  {['todos', ...series].map((s) => (
+                    <button key={s} className={`pill ${serie === s ? 'on' : ''}`} aria-pressed={serie === s} onClick={() => setSerie(s)}>
+                      {s === 'todos' ? 'Todos' : `iPhone ${s}`}
+                    </button>
                   ))}
-                </select>
-              </div>
-            </div>
-            <Grid products={shown} onOpen={onOpen} onAdd={onAdd} />
+                </div>
+              }
+            />
           </Reveal>
         </div>
       </section>
@@ -132,7 +98,39 @@ export function AccessoriesPage({ products, onOpen, onAdd }) {
       <section className="section">
         <div className="wrap">
           <Reveal className="panel">
-            <Grid products={list} onOpen={onOpen} onAdd={onAdd} empty="Pronto tendremos accesorios disponibles." />
+            <Catalog products={list} onOpen={onOpen} onAdd={onAdd} empty="Pronto tendremos accesorios disponibles." />
+          </Reveal>
+        </div>
+      </section>
+    </>
+  )
+}
+
+// Página genérica de una categoría creada desde el panel (perfumes, MacBook, relojes…).
+export function CategoryPage({ id, categories, products, onOpen, onAdd }) {
+  const category = categories.find((c) => c.id === id)
+  const list = useMemo(() => products.filter((p) => !p.hidden && p.category === id), [products, id])
+
+  if (!category) {
+    return (
+      <>
+        <PageHead eyebrow="Tienda" title="No encontramos esa categoría." />
+        <section className="section">
+          <div className="wrap">
+            <a className="btn btn-ghost" href="#/">Volver al inicio</a>
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <PageHead eyebrow="Tienda" title={`${category.label}.`} subtitle="Todo original, disponible en el local o por WhatsApp." />
+      <section className="section">
+        <div className="wrap">
+          <Reveal className="panel">
+            <Catalog products={list} onOpen={onOpen} onAdd={onAdd} empty={`Pronto tendremos ${category.label.toLowerCase()} disponibles.`} />
           </Reveal>
         </div>
       </section>
@@ -146,7 +144,8 @@ const STEPS = [
   ['3', 'Te asesoramos', 'Te explicamos los requisitos y cómo quedan tus cuotas.'],
 ]
 
-export function CreditPage({ products, whatsapp, onOpen, onAdd }) {
+export function CreditPage({ products, settings, onOpen, onAdd }) {
+  const { whatsapp } = settings
   const link = waLink(whatsapp, 'Hola Zona Originals, quiero información sobre iPhone a crédito.')
   const credit = products.filter((p) => !p.hidden && p.credit && p.category === 'iphone')
   return (
@@ -168,6 +167,21 @@ export function CreditPage({ products, whatsapp, onOpen, onAdd }) {
             <a className="btn btn-primary" href={link} target="_blank" rel="noreferrer">
               Consultar crédito por WhatsApp
             </a>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="simulador">
+        <div className="wrap">
+          <Reveal className="panel">
+            <header className="section-head">
+              <p className="eyebrow">Simulador</p>
+              <h2 className="h2" id="simulador">
+                Calcula tu cuota
+              </h2>
+              <p className="sub">Elige el celular, la cuota inicial y el plazo.</p>
+            </header>
+            <CreditSimulator products={products} settings={settings} />
           </Reveal>
         </div>
       </section>
@@ -211,11 +225,10 @@ export function ContactPage({ settings }) {
               </Reveal>
             ))}
           </div>
-          <Reveal>
-            <MapEmbed settings={settings} />
-          </Reveal>
         </div>
       </section>
+
+      <Visit settings={settings} />
     </>
   )
 }
