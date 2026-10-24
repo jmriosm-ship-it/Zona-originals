@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { BOX_DEPTHS, BOX_FACES, COLOR_PRESETS, MODEL_LABELS, modelKind, CONDITIONS, fmtPrice, slugify, uid } from '../lib/data'
 import { fileToDataUrl } from '../lib/storage'
 import { signIn, signOut, uploadProductImages } from '../lib/cloud'
@@ -663,7 +663,7 @@ function CategoriesTab({ categories, setCategories, products }) {
             <div className="row-info">
               <label>
                 <span className="card-spec">Nombre ({count(c.id)} productos)</span>
-                <input className="field" value={c.label} onChange={(e) => rename(c.id, { label: e.target.value })} />
+                <input className="field" value={c.label} disabled={c.locked} title={c.locked ? 'Las categorías fijas no se renombran' : undefined} onChange={(e) => rename(c.id, { label: e.target.value })} />
               </label>
               <label>
                 <span className="card-spec">Dato extra del producto</span>
@@ -847,6 +847,15 @@ export default function Admin({ products, setProducts, categories, setCategories
   const [editing, setEditing] = useState(null) // null | 'new' | product
   const importRef = useRef(null)
 
+  // Solo puede haber un producto "Más vendido": si por cualquier motivo quedaron varios, se conserva el más reciente.
+  useEffect(() => {
+    if (!isAdmin || products.filter((p) => p.bestseller).length < 2) return
+    setProducts((list) => {
+      let kept = false
+      return list.map((p) => (p.bestseller ? (kept ? { ...p, bestseller: false } : ((kept = true), p)) : p))
+    })
+  }, [isAdmin, products, setProducts])
+
   if (!authReady) {
     return (
       <main className="wrap admin">
@@ -918,7 +927,9 @@ export default function Admin({ products, setProducts, categories, setCategories
         const clean = await uploadProductImages({ ...p, reviews: undefined })
         uploaded.push(clean)
       }
-      setProducts((list) => [...uploaded, ...list.filter((x) => !uploaded.some((u) => u.id === x.id))])
+      let flagged = false
+      const single = uploaded.map((p) => (p.bestseller ? (flagged ? { ...p, bestseller: false } : ((flagged = true), p)) : p))
+      setProducts((list) => [...single, ...list.filter((x) => !single.some((u) => u.id === x.id))])
       setCategories((list) => [...list, ...lc.filter((c) => !list.some((x) => x.id === c.id))])
       for (const p of lp) {
         for (const r of p.reviews ?? []) {

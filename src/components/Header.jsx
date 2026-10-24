@@ -38,7 +38,7 @@ function buildMega(key, products, categories) {
   }
 }
 
-const MEGA_KEYS = ['celulares', 'tienda']
+const MEGA_KEYS = ['IPHONE', 'tienda']
 const BUILTIN_IDS = BUILTIN_CATEGORIES.map((b) => b.id)
 
 export default function Header({ route, products, categories, cartCount, onCart }) {

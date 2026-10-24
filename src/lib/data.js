@@ -160,8 +160,16 @@ export const firstInStock = (p) => colorsOf(p).find((c) => colorStock(p, c) > 0)
 // El celular 3D se arma con las fotos de pantalla y/o tapa que sube el administrador.
 // Tipo de modelo 3D: celular, laptop o reloj. Si el producto no lo define, sale de su categoría.
 // 'box' = sin modelo de dispositivo: solo se usa la caja en 3D (colonias).
-export const modelKind = (p) =>
-  p.kind || (p.category === 'macbook' ? 'laptop' : p.category === 'reloj' ? 'watch' : p.category === 'colonias' ? 'box' : 'phone')
+// Si el administrador no eligió un tipo, se deduce del nombre ("iPhone 15", "MacBook Air", "Apple Watch") y,
+// si el nombre no dice nada, de la categoría. Así un iPhone guardado por error en otra categoría no sale como laptop.
+export const modelKind = (p) => {
+  if (p.kind) return p.kind
+  const name = p.name ?? ''
+  if (/iphone|celular/i.test(name)) return 'phone'
+  if (/mac\s?book|laptop|port[aá]til|\bmac\b/i.test(name)) return 'laptop'
+  if (/watch|reloj/i.test(name)) return 'watch'
+  return p.category === 'macbook' ? 'laptop' : p.category === 'reloj' ? 'watch' : p.category === 'colonias' ? 'box' : 'phone'
+}
 
 export const MODEL_LABELS = { phone: 'Celular 3D', laptop: 'MacBook 3D', watch: 'Reloj 3D' }
 

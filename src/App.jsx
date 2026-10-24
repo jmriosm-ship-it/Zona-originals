@@ -53,13 +53,18 @@ export default function App() {
     const missing = BUILTIN_CATEGORIES.some((b) => !ids.includes(b.id))
     const dupes = new Set(ids).size !== ids.length
     const unlocked = BUILTIN_CATEGORIES.some((b) => categories.some((c) => c.id === b.id && !c.locked))
-    if (!missing && !dupes && !unlocked) return
+    // Cada categoría fija tiene su propia página y tipo de 3D: su nombre no se puede cambiar.
+    const renamed = BUILTIN_CATEGORIES.some((b) => categories.some((c) => c.id === b.id && c.label !== b.label))
+    if (!missing && !dupes && !unlocked && !renamed) return
     setCategories((list) => {
       const have = new Set(list.map((c) => c.id))
       const seen = new Set()
       return [...BUILTIN_CATEGORIES.filter((b) => !have.has(b.id)), ...list]
         .filter((c) => !seen.has(c.id) && seen.add(c.id))
-        .map((c) => (BUILTIN_CATEGORIES.some((b) => b.id === c.id) ? { ...c, locked: true } : c))
+        .map((c) => {
+          const fixed = BUILTIN_CATEGORIES.find((b) => b.id === c.id)
+          return fixed ? { ...c, label: fixed.label, locked: true } : c
+        })
     })
   }, [categories, setCategories])
 
