@@ -1,0 +1,13 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Vite 8 necesita Node 20.19+ o 22.12+.
+  NODE_VERSION = "22"
+
+# Los archivos de /assets llevan el contenido en el nombre: se pueden guardar por un año.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
