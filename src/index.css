@@ -1652,8 +1652,16 @@ textarea.field {
   box-shadow: 0 0 0 1px var(--slate);
 }
 
+.path {
+  min-width: 0;
+  container-type: inline-size;
+}
+
 .path-t {
-  font-size: clamp(32px, 4vw, 44px);
+  /* El título se ajusta al ancho de su cuadro para que nombres largos (ACCESORIOS) no se partan ni se salgan. */
+  font-size: clamp(26px, 2.4vw, 36px);
+  font-size: clamp(22px, 13cqw, 36px);
+  overflow-wrap: break-word;
   font-weight: 600;
   line-height: 1.07;
   letter-spacing: -0.015em;

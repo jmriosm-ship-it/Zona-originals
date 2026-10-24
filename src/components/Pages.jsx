@@ -42,7 +42,7 @@ export function PhonesPage({ products, onOpen, onAdd, initialSerie }) {
 
   return (
     <>
-      <PageHead eyebrow="Celulares" title="iPhone." subtitle="Del 13 en adelante, originales y listos para llevar." />
+      <PageHead eyebrow="IPHONE" title="iPhone." subtitle="Del 13 en adelante, originales y listos para llevar." />
 
       {series.length > 0 && (
         <section className="section" aria-label="Elige tu generación">

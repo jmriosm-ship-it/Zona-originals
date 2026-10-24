@@ -10,7 +10,7 @@ import { Testimonials, TikTokVideos } from './Social'
 
 // Un acceso por categoría (las crea el administrador) más Celulares y Crédito.
 const pathsFor = (categories) => [
-  ...(categories.some((c) => c.id === 'iphone') ? [['#/celulares', 'Celulares', 'iPhone del 13 en adelante.']] : []),
+  ...(categories.some((c) => c.id === 'iphone') ? [['#/celulares', 'IPHONE', 'iPhone del 13 en adelante.']] : []),
   ...categories.filter((c) => c.id !== 'iphone').map((c) => [categoryHref(c.id), c.label, 'Todo original.']),
   ['#/credito', 'Crédito', 'Llévatelo con cuotas.'],
 ]

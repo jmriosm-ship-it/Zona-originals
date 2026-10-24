@@ -4,7 +4,7 @@ import { LOGO } from '../lib/assets'
 
 const LINKS = [
   ['#/', 'Inicio', 'home'],
-  ['#/celulares', 'Celulares', 'celulares'],
+  ['#/celulares', 'IPHONE', 'celulares'],
   ['#/accesorios', 'Tienda', 'tienda'],
   ['#/credito', 'Crédito', 'credito'],
   ['#/contacto', 'Contacto', 'contacto'],
@@ -31,14 +31,14 @@ function buildMega(key, products, categories) {
     big: categories.filter((c) => c.id !== 'iphone' && !BUILTIN_IDS.includes(c.id)).map((c) => [categoryHref(c.id), c.label]),
     moreLabel: 'Más para tu iPhone',
     more: [
-      ['#/celulares', 'Celulares'],
+      ['#/celulares', 'IPHONE'],
       ['#/credito', 'iPhone a crédito'],
       ['#/contacto', 'Contacto'],
     ],
   }
 }
 
-const MEGA_KEYS = ['IPHONE', 'tienda']
+const MEGA_KEYS = ['celulares', 'tienda']
 const BUILTIN_IDS = BUILTIN_CATEGORIES.map((b) => b.id)
 
 export default function Header({ route, products, categories, cartCount, onCart }) {

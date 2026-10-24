@@ -19,7 +19,7 @@ export function Footer({ settings, categories = [] }) {
           <div>
             <h4>Tienda</h4>
             <p>
-              <a href="#/celulares">Celulares</a>
+              <a href="#/celulares">IPHONE</a>
             </p>
             {categories
               .filter((c) => c.id !== 'iphone')
