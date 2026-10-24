@@ -11,6 +11,7 @@ import Admin from './components/Admin'
 import Showcase from './components/Showcase'
 import { Footer } from './components/Info'
 import SocialFloat from './components/SocialFloat'
+import { PrivacyPage, TermsPage } from './components/Legal'
 
 function useHash() {
   const [hash, setHash] = useState(window.location.hash)
@@ -70,7 +71,7 @@ export default function App() {
     }
     const c = /^#\/c\/([^/]+)/.exec(hash)
     if (c) return { name: 'category', id: decodeURIComponent(c[1]) }
-    const m = /^#\/(celulares|accesorios|credito|contacto)(?:\/(\d{2}))?/.exec(hash)
+    const m = /^#\/(celulares|accesorios|credito|contacto|terminos|privacidad)(?:\/(\d{2}))?/.exec(hash)
     return { name: m ? m[1] : 'home', serie: m?.[2] }
   }, [hash, products])
 
@@ -146,6 +147,8 @@ export default function App() {
         {route.name === 'category' && !(SHOWCASES[route.id] && categories.some((c) => c.id === route.id)) && <CategoryPage {...shared} id={route.id} />}
         {route.name === 'credito' && <CreditPage {...shared} settings={settings} />}
         {route.name === 'contacto' && <ContactPage settings={settings} />}
+        {route.name === 'terminos' && <TermsPage settings={settings} />}
+        {route.name === 'privacidad' && <PrivacyPage settings={settings} />}
         {route.name === 'product' && (
           <ProductPage product={route.product} category={categories.find((c) => c.id === route.section)} whatsapp={settings.whatsapp} warranty={settings.warranty} onAdd={addToCart} onReview={addReview} />
         )}

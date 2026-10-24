@@ -553,6 +553,18 @@ function Settings({ settings, setSettings, onMigrate, email }) {
           <input className="field" value={form.city} onChange={set('city')} />
         </label>
         <label>
+          Nombre o razón social del titular (para términos y privacidad)
+          <input className="field" value={form.legalName ?? ''} onChange={set('legalName')} placeholder="Nombre legal de la tienda o del dueño" />
+        </label>
+        <label>
+          NIT o cédula
+          <input className="field" value={form.nit ?? ''} onChange={set('nit')} placeholder="900.123.456-7" />
+        </label>
+        <label>
+          Correo de contacto
+          <input className="field" type="email" value={form.contactEmail ?? ''} onChange={set('contactEmail')} placeholder="tienda@correo.com" />
+        </label>
+        <label>
           Usuario de Instagram
           <input className="field" value={form.instagram ?? ''} onChange={set('instagram')} placeholder="zona_originals" />
         </label>

@@ -49,7 +49,11 @@ export function Footer({ settings, categories = [] }) {
         </div>
         <div className="footer-bottom">
           <p>© {YEAR} Zona Originals. Todos los derechos reservados.</p>
-          <a href="#/admin">Administrar tienda</a>
+          <nav className="footer-legal" aria-label="Legal">
+            <a href="#/terminos">Términos y condiciones</a>
+            <a href="#/privacidad">Política de privacidad</a>
+            <a href="#/admin">Administrar tienda</a>
+          </nav>
         </div>
       </div>
     </footer>

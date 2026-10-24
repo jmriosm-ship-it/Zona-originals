@@ -96,6 +96,9 @@ export default function ReviewForm({ onSubmit }) {
           {error}
         </p>
       )}
+      <p className="legal-note">
+        Al enviar tu reseña aceptas el tratamiento de tu nombre y comentario según nuestra <a href="#/privacidad">política de privacidad</a>.
+      </p>
       <div className="actions actions-left">
         <button className="btn btn-primary" type="submit">
           Enviar reseña

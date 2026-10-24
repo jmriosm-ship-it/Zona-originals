@@ -79,6 +79,10 @@ export const DEFAULT_SETTINGS = {
     'Nuestra garantía cubre:\n• Mal funcionamiento del equipo.\n• IMEI (no aplica en equipos no registrados).\n• Mal rendimiento de la batería con buen uso (solo si tiene el cargador original).\n\nNo hay garantía por:\n• Daños de display.\n• Humedad.\n• Golpes.\n• Bloqueos de teléfonos no registrados.\n• Daños físicos del equipo.\n• Batería por mal uso.\n• Teléfonos abiertos.',
   instagram: 'zona_originals_col_',
   tiktokVideos: '',
+  // Datos del titular para los términos y la política de privacidad (se llenan en Ajustes).
+  legalName: '',
+  nit: '',
+  contactEmail: '',
   hours: '',
 }
 
