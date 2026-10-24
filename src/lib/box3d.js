@@ -253,6 +253,8 @@ export function createBoxScene(container, { image, faces = {}, depth = 0.34, nam
   const loadImg = (url) =>
     new Promise((resolve) => {
       const im = new Image()
+      // Las fotos de la nube vienen de otra dirección: sin esto el navegador bloquearía usarlas como textura 3D.
+      im.crossOrigin = 'anonymous'
       im.onload = () => resolve(im)
       im.onerror = () => resolve(null)
       im.src = url

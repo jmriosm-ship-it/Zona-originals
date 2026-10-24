@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { BOX_DEPTHS, BOX_FACES, COLOR_PRESETS, MODEL_LABELS, modelKind, CONDITIONS, fmtPrice, slugify, uid } from '../lib/data'
 import { fileToDataUrl } from '../lib/storage'
+import { signIn, signOut, uploadProductImages } from '../lib/cloud'
 import { LOGO } from '../lib/assets'
 import BoxPhotoEditor from './BoxPhotoEditor'
 
@@ -35,41 +36,33 @@ const EMPTY = {
 
 const MAX_IMAGES = 4
 
-function Lock({ settings, onUnlock, onCreatePin }) {
-  const creating = !settings.pin
-  const [pin, setPin] = useState('')
-  const [pin2, setPin2] = useState('')
+function Login({ onBack }) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
-    if (creating) {
-      if (pin.length < 4) return setError('Usa al menos 4 caracteres.')
-      if (pin !== pin2) return setError('Las claves no coinciden.')
-      onCreatePin(pin)
-    } else if (pin === settings.pin) {
-      onUnlock()
-    } else {
-      setError('Clave incorrecta.')
-    }
+    setBusy(true)
+    setError('')
+    const { error: err } = await signIn(email, password)
+    setBusy(false)
+    if (err) setError('Correo o contraseña incorrectos.')
   }
 
   return (
     <form className="lock panel" onSubmit={submit}>
       <img src={LOGO} alt="" width="72" height="72" className="lock-logo" />
-      <h1 className="h3">{creating ? 'Crea tu clave de administrador' : 'Administrar tienda'}</h1>
-      <p className="sub">
-        {creating ? 'Será la clave para subir y editar productos.' : 'Ingresa tu clave para continuar.'}
-      </p>
-      <input className="field" type="password" placeholder="Clave" autoFocus value={pin} onChange={(e) => setPin(e.target.value)} aria-label="Clave" />
-      {creating && (
-        <input className="field" type="password" placeholder="Repite la clave" value={pin2} onChange={(e) => setPin2(e.target.value)} aria-label="Repite la clave" />
-      )}
+      <h1 className="h3">Administrar tienda</h1>
+      <p className="sub">Entra con tu correo y contraseña de administrador.</p>
+      <input className="field" type="email" placeholder="Correo" autoComplete="username" autoFocus value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Correo" />
+      <input className="field" type="password" placeholder="Contraseña" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} aria-label="Contraseña" />
       {error && <p className="error" role="alert">{error}</p>}
-      <button className="btn btn-primary btn-block" type="submit">
-        {creating ? 'Guardar clave' : 'Entrar'}
+      <button className="btn btn-primary btn-block" type="submit" disabled={busy || !email || !password}>
+        {busy ? 'Entrando…' : 'Entrar'}
       </button>
-      <a className="link-btn" href="#/">Volver a la tienda</a>
+      <a className="link-btn" href="#/" onClick={onBack}>Volver a la tienda</a>
     </form>
   )
 }
@@ -95,9 +88,6 @@ function ProductForm({ initial, categories, defaultCategory, onSave, onCancel })
   const boxFace = useRef('front')
   const category = categories.find((c) => c.id === form.category)
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
-
-  const setReview = (i, patch) =>
-    setForm((f) => ({ ...f, reviews: f.reviews.map((r, j) => (j === i ? { ...r, ...patch } : r)) }))
 
   const setColor = (i, patch) =>
     setForm((f) => ({ ...f, colors: f.colors.map((c, j) => (j === i ? { ...c, ...patch } : c)) }))
@@ -236,27 +226,34 @@ function ProductForm({ initial, categories, defaultCategory, onSave, onCancel })
     )
   }
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault()
     const price = parseInt(String(form.price).replace(/\D/g, ''), 10)
     if (!categories.length) return setError('Primero crea una categoría en la pestaña Categorías.')
     if (!form.name.trim()) return setError('Escribe el nombre del producto.')
     if (!price) return setError('Escribe un precio válido.')
-    onSave({
+    setBusy(true)
+    setError('')
+    try {
+      await onSave({
       ...form,
+      reviews: undefined,
       id: form.id ?? uid(),
       name: form.name.trim(),
       color: form.colors[0]?.name ?? form.color,
       colors: form.colors.filter((c) => c.name.trim()).map((c) => ({ ...c, stock: Math.max(0, parseInt(c.stock, 10) || 0) })),
       highlights: form.highlights.map((h) => h.trim()).filter(Boolean),
-      reviews: form.reviews.filter((r) => r.text.trim()).map((r) => ({ ...r, rating: Number(r.rating) || 5 })),
       price,
       stock: form.colors.some((c) => c.name.trim())
         ? form.colors.filter((c) => c.name.trim()).reduce((n, c) => n + Math.max(0, parseInt(c.stock, 10) || 0), 0)
         : Math.max(0, parseInt(form.stock, 10) || 0),
       createdAt: form.createdAt ?? Date.now(),
       demo: false,
-    })
+      })
+    } catch (err) {
+      setError(err?.message ? `No se pudo guardar: ${err.message}` : 'No se pudo guardar. Revisa tu conexión e inténtalo de nuevo.')
+    }
+    setBusy(false)
   }
 
   return (
@@ -340,31 +337,6 @@ function ProductForm({ initial, categories, defaultCategory, onSave, onCancel })
         Especificaciones (una por línea, con el formato "Nombre: valor")
         <textarea className="field" rows="5" value={form.specs ?? ''} onChange={set('specs')} placeholder={'Pantalla: 6,9 pulgadas Super Retina XDR\nChip: A18 Pro\nCámara: 48 MP\nBatería: hasta 33 h de video'} />
       </label>
-
-      <div>
-        <p className="label">Reseñas de clientes (solo escribe reseñas reales)</p>
-        <ul className="review-rows">
-          {form.reviews.map((r, i) => (
-            <li key={i} className="review-row">
-              <input className="field" value={r.name} placeholder="Nombre del cliente" aria-label="Nombre del cliente" onChange={(e) => setReview(i, { name: e.target.value })} />
-              <select className="field" value={r.rating} aria-label="Estrellas" onChange={(e) => setReview(i, { rating: e.target.value })}>
-                {[5, 4, 3, 2, 1].map((n) => (
-                  <option key={n} value={n}>
-                    {n} ★
-                  </option>
-                ))}
-              </select>
-              <textarea className="field" rows="2" value={r.text} placeholder="Lo que dijo el cliente" aria-label="Reseña" onChange={(e) => setReview(i, { text: e.target.value })} />
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setForm((f) => ({ ...f, reviews: f.reviews.filter((_, j) => j !== i) }))}>
-                Quitar
-              </button>
-            </li>
-          ))}
-        </ul>
-        <button type="button" className="pill" onClick={() => setForm((f) => ({ ...f, reviews: [...f.reviews, { name: '', rating: 5, text: '' }] }))}>
-          + Agregar reseña
-        </button>
-      </div>
 
       <div>
         <p className="label">Colores y cantidad disponible de cada uno (el cliente elige el color y el teléfono 3D cambia)</p>
@@ -543,14 +515,14 @@ function ProductForm({ initial, categories, defaultCategory, onSave, onCancel })
 
       {error && <p className="error" role="alert">{error}</p>}
       <div className="actions actions-left">
-        <button className="btn btn-primary" type="submit" disabled={busy}>Guardar producto</button>
+        <button className="btn btn-primary" type="submit" disabled={busy}>{busy ? 'Guardando…' : 'Guardar producto'}</button>
         <button className="btn btn-ghost" type="button" onClick={onCancel}>Cancelar</button>
       </div>
     </form>
   )
 }
 
-function Settings({ settings, setSettings }) {
+function Settings({ settings, setSettings, onMigrate, email }) {
   const [form, setForm] = useState(settings)
   const [saved, setSaved] = useState(false)
   const set = (k) => (e) => {
@@ -592,10 +564,6 @@ function Settings({ settings, setSettings }) {
           Coordenadas del pin rojo (latitud, longitud)
           <input className="field" value={form.mapCoords ?? ''} onChange={set('mapCoords')} placeholder="8.234645, -73.35324" />
         </label>
-        <label>
-          Clave de administrador
-          <input className="field" type="password" value={form.pin} onChange={set('pin')} />
-        </label>
       </div>
       <label>
         Horarios (una línea por horario)
@@ -630,6 +598,15 @@ function Settings({ settings, setSettings }) {
         <button className="btn btn-primary" type="submit">Guardar</button>
         {saved && <span className="ok" role="status">Guardado</span>}
       </div>
+
+      <h2 className="h3">Cuenta y datos</h2>
+      <p className="sub">Administrador: {email}. Para cambiar la contraseña, hazlo en Supabase (Authentication → Users).</p>
+      <div className="actions actions-left">
+        <button type="button" className="btn btn-ghost btn-sm" onClick={onMigrate}>
+          Subir a la nube los datos de este navegador
+        </button>
+      </div>
+      <p className="sub">Úsalo una sola vez si ya tenías productos cargados aquí antes de conectar la base de datos.</p>
     </form>
   )
 }
@@ -709,21 +686,22 @@ function CategoriesTab({ categories, setCategories, products }) {
   )
 }
 
-function ReviewsTab({ products, setProducts }) {
+function ReviewsTab({ products, reviews, api }) {
   const [filter, setFilter] = useState('pendientes')
-  const [editing, setEditing] = useState(null) // "productId:index"
+  const [draft, setDraft] = useState(null) // { id, name, rating, text }
+  const [add, setAdd] = useState({ productId: '', name: '', rating: 5, text: '' })
+  const [msg, setMsg] = useState('')
 
-  const rows = products.flatMap((p) => (p.reviews ?? []).map((r, i) => ({ p, r, i })))
-  const shown = rows.filter(({ r }) => filter === 'todas' || r.status === 'pending')
+  const nameOf = (id) => products.find((p) => p.id === id)?.name ?? 'Producto eliminado'
+  const shown = reviews.filter((r) => filter === 'todas' || r.status === 'pending')
 
-  const update = (pid, idx, patch) =>
-    setProducts((list) =>
-      list.map((p) => {
-        if (p.id !== pid) return p
-        const reviews = patch === null ? p.reviews.filter((_, j) => j !== idx) : p.reviews.map((r, j) => (j === idx ? { ...r, ...patch } : r))
-        return { ...p, reviews }
-      }),
-    )
+  const create = async (e) => {
+    e.preventDefault()
+    if (!add.productId || add.text.trim().length < 3) return setMsg('Elige el producto y escribe la reseña.')
+    const ok = await api.create(add.productId, { name: add.name.trim(), rating: Number(add.rating), text: add.text.trim() })
+    setMsg(ok ? 'Reseña agregada.' : 'No se pudo agregar la reseña.')
+    if (ok) setAdd({ productId: add.productId, name: '', rating: 5, text: '' })
+  }
 
   return (
     <section className="panel">
@@ -745,14 +723,13 @@ function ReviewsTab({ products, setProducts }) {
         <p className="empty">{filter === 'pendientes' ? 'No hay reseñas por revisar.' : 'Todavía no hay reseñas.'}</p>
       ) : (
         <ul className="rows">
-          {shown.map(({ p, r, i }) => {
-            const key = `${p.id}:${i}`
-            const isEditing = editing === key
+          {shown.map((r) => {
+            const isEditing = draft?.id === r.id
             return (
-              <li className="rev-row" key={key}>
+              <li className="rev-row" key={r.id}>
                 <div className="rev-head">
                   <p className="line-name">
-                    {p.name}
+                    {nameOf(r.productId)}
                     {r.status === 'pending' && <span className="tag">Pendiente</span>}
                   </p>
                   <p className="stars" aria-label={`${r.rating} de 5`}>
@@ -763,15 +740,15 @@ function ReviewsTab({ products, setProducts }) {
 
                 {isEditing ? (
                   <div className="rev-edit">
-                    <input className="field" value={r.name} aria-label="Nombre" onChange={(e) => update(p.id, i, { name: e.target.value })} />
-                    <select className="field" value={r.rating} aria-label="Estrellas" onChange={(e) => update(p.id, i, { rating: Number(e.target.value) })}>
+                    <input className="field" value={draft.name} aria-label="Nombre" onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
+                    <select className="field" value={draft.rating} aria-label="Estrellas" onChange={(e) => setDraft({ ...draft, rating: Number(e.target.value) })}>
                       {[5, 4, 3, 2, 1].map((n) => (
                         <option key={n} value={n}>
                           {n} ★
                         </option>
                       ))}
                     </select>
-                    <textarea className="field" rows="3" value={r.text} aria-label="Reseña" onChange={(e) => update(p.id, i, { text: e.target.value })} />
+                    <textarea className="field" rows="3" value={draft.text} aria-label="Reseña" onChange={(e) => setDraft({ ...draft, text: e.target.value })} />
                   </div>
                 ) : (
                   <>
@@ -782,17 +759,26 @@ function ReviewsTab({ products, setProducts }) {
 
                 <div className="row-actions">
                   {r.status === 'pending' && (
-                    <button className="btn btn-primary btn-sm" onClick={() => update(p.id, i, { status: 'approved' })}>
+                    <button className="btn btn-primary btn-sm" onClick={() => api.update(r.id, { status: 'approved' })}>
                       Aprobar
                     </button>
                   )}
-                  <button className="btn btn-ghost btn-sm" onClick={() => setEditing(isEditing ? null : key)}>
-                    {isEditing ? 'Listo' : 'Editar'}
-                  </button>
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={() => window.confirm('¿Eliminar esta reseña?') && (setEditing(null), update(p.id, i, null))}
-                  >
+                  {isEditing ? (
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => {
+                        api.update(r.id, { name: draft.name, rating: draft.rating, text: draft.text })
+                        setDraft(null)
+                      }}
+                    >
+                      Listo
+                    </button>
+                  ) : (
+                    <button className="btn btn-ghost btn-sm" onClick={() => setDraft({ id: r.id, name: r.name, rating: r.rating, text: r.text })}>
+                      Editar
+                    </button>
+                  )}
+                  <button className="btn btn-ghost btn-sm" onClick={() => window.confirm('¿Eliminar esta reseña?') && (setDraft(null), api.remove(r.id))}>
                     Eliminar
                   </button>
                 </div>
@@ -801,52 +787,138 @@ function ReviewsTab({ products, setProducts }) {
           })}
         </ul>
       )}
+
+      <form className="form" onSubmit={create}>
+        <h3 className="h3">Agregar una reseña real (por ejemplo, la que te dieron por WhatsApp)</h3>
+        <div className="form-grid">
+          <label>
+            Producto
+            <select className="field" value={add.productId} onChange={(e) => setAdd({ ...add, productId: e.target.value })}>
+              <option value="">Elige…</option>
+              {products.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Nombre del cliente
+            <input className="field" value={add.name} onChange={(e) => setAdd({ ...add, name: e.target.value })} />
+          </label>
+          <label>
+            Estrellas
+            <select className="field" value={add.rating} onChange={(e) => setAdd({ ...add, rating: e.target.value })}>
+              {[5, 4, 3, 2, 1].map((n) => (
+                <option key={n} value={n}>
+                  {n} ★
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <label>
+          Lo que dijo el cliente
+          <textarea className="field" rows="3" value={add.text} onChange={(e) => setAdd({ ...add, text: e.target.value })} />
+        </label>
+        <div className="actions actions-left">
+          <button className="btn btn-primary btn-sm" type="submit">+ Agregar reseña</button>
+          {msg && <span className="ok" role="status">{msg}</span>}
+        </div>
+      </form>
     </section>
   )
 }
 
-export default function Admin({ products, setProducts, categories, setCategories, settings, setSettings, storageFull }) {
-  const [ok, setOk] = useState(() => sessionStorage.getItem('zo-admin') === '1')
+export default function Admin({ products, setProducts, categories, setCategories, settings, setSettings, session, isAdmin, authReady, reviewsApi, cloudError, onClearError }) {
   const [tab, setTab] = useState('productos')
   const [editing, setEditing] = useState(null) // null | 'new' | product
   const importRef = useRef(null)
 
-  const unlock = () => {
-    sessionStorage.setItem('zo-admin', '1')
-    setOk(true)
-  }
-
-  if (!ok) {
+  if (!authReady) {
     return (
       <main className="wrap admin">
-        <Lock
-          settings={settings}
-          onUnlock={unlock}
-          onCreatePin={(pin) => {
-            setSettings({ ...settings, pin })
-            unlock()
-          }}
-        />
+        <p className="empty">Cargando…</p>
       </main>
     )
   }
 
-  const save = (p) => {
+  if (!session) {
+    return (
+      <main className="wrap admin">
+        <Login onBack={() => {}} />
+      </main>
+    )
+  }
+
+  if (!isAdmin) {
+    return (
+      <main className="wrap admin">
+        <section className="lock panel">
+          <img src={LOGO} alt="" width="72" height="72" className="lock-logo" />
+          <h1 className="h3">Este usuario no es administrador</h1>
+          <p className="sub">
+            Entraste como {session.user?.email}, pero ese correo no está autorizado. Debe estar registrado en la tabla de administradores de la base de datos.
+          </p>
+          <button className="btn btn-primary btn-block" onClick={() => signOut()}>Cerrar sesión</button>
+          <a className="link-btn" href="#/">Volver a la tienda</a>
+        </section>
+      </main>
+    )
+  }
+
+  const save = async (p) => {
+    // Las fotos nuevas se suben a la nube y el producto queda con sus direcciones públicas.
+    const clean = await uploadProductImages(p)
     // Solo un producto puede ser el "Más vendido" a la vez: al marcar uno, se desmarcan los demás.
     setProducts((list) => {
-      const base = p.bestseller ? list.map((x) => (x.bestseller && x.id !== p.id ? { ...x, bestseller: false } : x)) : list
-      return base.some((x) => x.id === p.id) ? base.map((x) => (x.id === p.id ? p : x)) : [p, ...base]
+      const base = clean.bestseller ? list.map((x) => (x.bestseller && x.id !== clean.id ? { ...x, bestseller: false } : x)) : list
+      return base.some((x) => x.id === clean.id) ? base.map((x) => (x.id === clean.id ? clean : x)) : [clean, ...base]
     })
     setEditing(null)
   }
-  const remove = (p) => window.confirm(`¿Eliminar "${p.name}"?`) && setProducts((l) => l.filter((x) => x.id !== p.id))
+    const remove = (p) => window.confirm(`¿Eliminar "${p.name}"?`) && setProducts((l) => l.filter((x) => x.id !== p.id))
   const demoCount = products.filter((p) => p.demo).length
   // Categorías fijas (MacBook, Relojes, Colonias): cada una tiene su pestaña con sus productos.
   const fixed = categories.filter((c) => c.locked)
   const catTab = tab.startsWith('cat:') ? fixed.find((c) => c.id === tab.slice(4)) : null
   const showProducts = tab === 'productos' || Boolean(catTab)
   const listed = catTab ? products.filter((p) => p.category === catTab.id) : products
-  const pending = products.reduce((n, p) => n + (p.reviews ?? []).filter((r) => r.status === 'pending').length, 0)
+  const pending = reviewsApi.reviews.filter((r) => r.status === 'pending').length
+
+  // Sube a la nube lo que este navegador tenía guardado antes de conectar la base de datos.
+  const migrateLocal = async () => {
+    const read = (k) => {
+      try {
+        return JSON.parse(localStorage.getItem(k) ?? 'null')
+      } catch {
+        return null
+      }
+    }
+    const lp = read('zo-products') ?? []
+    const lc = read('zo-categories') ?? []
+    const ls = read('zo-settings')
+    if (!lp.length && !lc.length && !ls) return window.alert('Este navegador no tiene datos guardados de antes.')
+    if (!window.confirm(`Se subirán ${lp.length} productos y ${lc.length} categorías de este navegador a la nube (con sus fotos). ¿Continuar?`)) return
+    try {
+      const uploaded = []
+      for (const p of lp) {
+        const clean = await uploadProductImages({ ...p, reviews: undefined })
+        uploaded.push(clean)
+      }
+      setProducts((list) => [...uploaded, ...list.filter((x) => !uploaded.some((u) => u.id === x.id))])
+      setCategories((list) => [...list, ...lc.filter((c) => !list.some((x) => x.id === c.id))])
+      for (const p of lp) {
+        for (const r of p.reviews ?? []) {
+          if (r?.text?.trim()) await reviewsApi.create(p.id, { name: r.name ?? '', rating: Number(r.rating) || 5, text: r.text }, r.status === 'pending' ? 'pending' : 'approved')
+        }
+      }
+      if (ls) setSettings({ ...settings, ...ls })
+      window.alert('Listo: los datos de este navegador ya están en la nube.')
+    } catch (err) {
+      window.alert(`No se pudo subir todo: ${err?.message ?? 'error desconocido'}`)
+    }
+  }
 
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(products)], { type: 'application/json' })
@@ -865,9 +937,12 @@ export default function Admin({ products, setProducts, categories, setCategories
     try {
       const data = JSON.parse(await file.text())
       if (!Array.isArray(data) || !data.every((p) => p.id && p.name)) throw new Error()
-      if (window.confirm(`Esto reemplaza tus ${products.length} productos por los ${data.length} de la copia. ¿Continuar?`)) setProducts(data)
+      if (!window.confirm(`Esto reemplaza tus ${products.length} productos por los ${data.length} de la copia. ¿Continuar?`)) return
+      const uploaded = []
+      for (const p of data) uploaded.push(await uploadProductImages({ ...p, reviews: undefined }))
+      setProducts(uploaded)
     } catch {
-      window.alert('El archivo no es una copia válida.')
+      window.alert('El archivo no es una copia válida o no se pudo subir.')
     }
   }
 
@@ -878,12 +953,16 @@ export default function Admin({ products, setProducts, categories, setCategories
           <img src={LOGO} alt="" width="28" height="28" />
           <span>Panel de administración</span>
         </a>
-        <a className="btn btn-ghost btn-sm" href="#/">Ver tienda</a>
+        <div className="actions actions-left">
+          <a className="btn btn-ghost btn-sm" href="#/">Ver tienda</a>
+          <button className="btn btn-ghost btn-sm" onClick={() => signOut()}>Cerrar sesión</button>
+        </div>
       </header>
 
-      {storageFull && (
+      {cloudError && (
         <p className="alert" role="alert">
-          El navegador se quedó sin espacio y los últimos cambios no se guardaron. Elimina productos o sube fotos más livianas.
+          No se pudo guardar en la nube: {cloudError}{' '}
+          <button className="link-btn" onClick={onClearError}>Cerrar aviso</button>
         </p>
       )}
 
@@ -905,9 +984,9 @@ export default function Admin({ products, setProducts, categories, setCategories
 
       {tab === 'categorias' && <CategoriesTab categories={categories} setCategories={setCategories} products={products} />}
 
-      {tab === 'resenas' && <ReviewsTab products={products} setProducts={setProducts} />}
+      {tab === 'resenas' && <ReviewsTab products={products} reviews={reviewsApi.reviews} api={reviewsApi} />}
 
-      {tab === 'ajustes' && <Settings settings={settings} setSettings={setSettings} />}
+      {tab === 'ajustes' && <Settings settings={settings} setSettings={setSettings} onMigrate={migrateLocal} email={session.user?.email} />}
 
       {showProducts && editing && (
         <ProductForm initial={editing === 'new' ? null : editing} categories={categories} defaultCategory={catTab?.id} onSave={save} onCancel={() => setEditing(null)} />

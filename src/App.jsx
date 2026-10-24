@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BUILTIN_CATEGORIES, colorStock, DEFAULT_CATEGORIES, DEFAULT_SETTINGS, SHOWCASES, firstInStock } from './lib/data'
+import { BUILTIN_CATEGORIES, colorStock, DEFAULT_SETTINGS, SHOWCASES, firstInStock } from './lib/data'
 import { useLocalState } from './lib/storage'
+import { CATEGORIES_SPEC, PRODUCTS_SPEC, useCloudList, useCloudSettings, useReviews, useSession } from './lib/cloud'
 import Header from './components/Header'
 import Home from './components/Home'
 import { AccessoriesPage, CategoryPage, ContactPage, CreditPage, PhonesPage } from './components/Pages'
@@ -23,9 +24,17 @@ function useHash() {
 
 export default function App() {
   const hash = useHash()
-  const [products, setProducts, productsFull] = useLocalState('zo-products', () => [])
-  const [categories, setCategories] = useLocalState('zo-categories', DEFAULT_CATEGORIES)
-  const [stored, setSettings] = useLocalState('zo-settings', DEFAULT_SETTINGS)
+  // Productos, categorías, ajustes y reseñas viven en la nube (Supabase). Solo el administrador puede escribir.
+  const { session, isAdmin, ready: authReady } = useSession()
+  const [baseProducts, setProducts, productsCloud] = useCloudList(PRODUCTS_SPEC, isAdmin, isAdmin)
+  const [categories, setCategories, categoriesCloud] = useCloudList(CATEGORIES_SPEC, isAdmin, isAdmin)
+  const [stored, setSettings] = useCloudSettings(DEFAULT_SETTINGS, isAdmin, isAdmin)
+  const reviewsApi = useReviews(isAdmin)
+  // Cada producto lleva sus reseñas (las aprobadas para los clientes; todas para el administrador).
+  const products = useMemo(
+    () => baseProducts.map((p) => ({ ...p, reviews: reviewsApi.reviews.filter((r) => r.productId === p.id) })),
+    [baseProducts, reviewsApi.reviews],
+  )
   const [cart, setCart] = useLocalState('zo-cart', [])
   const [cartOpen, setCartOpen] = useState(false)
 
@@ -52,15 +61,6 @@ export default function App() {
         .map((c) => (BUILTIN_CATEGORIES.some((b) => b.id === c.id) ? { ...c, locked: true } : c))
     })
   }, [categories, setCategories])
-
-  // Limpieza única: quita los productos y categorías de ejemplo de versiones anteriores.
-  useEffect(() => {
-    if (localStorage.getItem('zo-clean-v1')) return
-    localStorage.setItem('zo-clean-v1', '1')
-    const real = products.filter((p) => !p.demo)
-    setProducts(real)
-    setCategories((list) => list.filter((c) => real.some((p) => p.category === c.id)))
-  }, [products, setProducts, setCategories])
 
   const route = useMemo(() => {
     if (hash.startsWith('#/admin')) return { name: 'admin' }
@@ -98,11 +98,8 @@ export default function App() {
     [setCart],
   )
 
-  const addReview = useCallback(
-    (productId, review) =>
-      setProducts((list) => list.map((p) => (p.id === productId ? { ...p, reviews: [...(p.reviews ?? []), review] } : p))),
-    [setProducts],
-  )
+  const { submit: submitReview } = reviewsApi
+  const addReview = useCallback((productId, review) => submitReview(productId, review), [submitReview])
 
   const lineKey = (l) => `${l.id}|${l.color ?? ''}`
   const setQty = (key, qty) => setCart((c) => (qty <= 0 ? c.filter((l) => lineKey(l) !== key) : c.map((l) => (lineKey(l) === key ? { ...l, qty } : l))))
@@ -121,7 +118,15 @@ export default function App() {
         setCategories={setCategories}
         settings={settings}
         setSettings={setSettings}
-        storageFull={productsFull}
+        session={session}
+        isAdmin={isAdmin}
+        authReady={authReady}
+        reviewsApi={reviewsApi}
+        cloudError={productsCloud.error || categoriesCloud.error}
+        onClearError={() => {
+          productsCloud.clearError()
+          categoriesCloud.clearError()
+        }}
       />
     )
   }
