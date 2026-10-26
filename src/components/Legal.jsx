@@ -204,7 +204,7 @@ export function TermsPage({ settings }) {
 
             <Section title="8. Propiedad intelectual y marcas">
               <p>
-                Apple, iPhone, MacBook y Apple Watch son marcas de Apple Inc. Los nombres de las colonias y demás marcas pertenecen a sus respectivos
+                Apple, iPhone, MacBook y Apple Watch son marcas de Apple Inc. Los nombres de los perfumes y demás marcas pertenecen a sus respectivos
                 dueños. Se mencionan solo para identificar los productos que vendemos. Este sitio es independiente y no está afiliado, patrocinado ni
                 respaldado por esas marcas. El diseño y los contenidos propios del sitio pertenecen a la tienda.
               </p>

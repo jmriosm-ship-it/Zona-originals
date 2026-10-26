@@ -45,7 +45,7 @@ export default function App() {
     [stored],
   )
 
-  // Las categorías fijas (MacBook, Relojes, Colonias) siempre existen, una sola vez, y quedan marcadas como fijas.
+  // Las categorías fijas (MacBook, Relojes, Perfumes) siempre existen, una sola vez, y quedan marcadas como fijas.
   // La actualización se calcula sobre la lista más reciente para que ejecutarla dos veces no duplique nada,
   // y de paso se quitan las repetidas que hayan quedado guardadas.
   useEffect(() => {

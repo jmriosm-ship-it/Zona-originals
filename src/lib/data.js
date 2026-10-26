@@ -3,8 +3,8 @@
 // Categorías fijas: siempre existen, tienen su propia página al estilo Apple y no se pueden eliminar.
 export const BUILTIN_CATEGORIES = [
   { id: 'macbook', label: 'MacBook', specLabel: 'Chip', locked: true },
-  { id: 'reloj', label: 'Relojes', specLabel: 'Tamaño', locked: true },
-  { id: 'colonias', label: 'Colonias', specLabel: 'Presentación (ml)', locked: true },
+  { id: 'AppleWatch', label: 'AppleWatch', specLabel: 'Tamaño', locked: true },
+  { id: 'Perfume', label: 'Perfumes', specLabel: 'Presentación (ml)', locked: true },
 ]
 
 export const DEFAULT_CATEGORIES = [...BUILTIN_CATEGORIES]
@@ -18,18 +18,19 @@ export const SHOWCASES = {
     models: 'Elige tu MacBook.',
     tilesTitle: 'Lo principal.',
   },
-  reloj: {
+  AppleWatch : {
     eyebrow: 'Apple Watch',
     title: 'Tu día, en la muñeca.',
     lead: 'Relojes Apple originales para tu salud, tu actividad y tus notificaciones.',
     models: 'Elige tu reloj.',
     tilesTitle: 'Lo principal.',
   },
+  // La clave debe ser el id interno de la categoría (colonias); el nombre que se ve es el label de arriba y el eyebrow.
   colonias: {
-    eyebrow: 'Colonias',
+    eyebrow: 'Perfumes',
     title: 'Tu aroma, tu sello.',
-    lead: 'Colonias y perfumes originales para cada ocasión, con atención directa en el local.',
-    models: 'Elige tu colonia.',
+    lead: 'Perfumes originales para cada ocasión, con atención directa en el local.',
+    models: 'Elige tu perfume.',
     tilesTitle: 'Lo principal.',
   },
 }

@@ -156,7 +156,7 @@ function ProductForm({ initial, categories, defaultCategory, onSave, onCancel })
   const kindText = {
     phone: 'Celular en 3D (opcional): sube una foto por cada cara del celular (el frente es lo principal; las demás son opcionales), marca las 4 esquinas y la tienda arma el celular girando en 3D. Las caras sin foto toman el color que elija el cliente.',
     laptop: 'MacBook en 3D (opcional): sube la foto de la pantalla, de la tapa por fuera y del teclado, marcando las 4 esquinas de cada una. La tienda arma la laptop abierta y girando. Si no subes teclado, se dibuja uno. El color que elija el cliente tiñe la base y la tapa.',
-    box: 'Las colonias usan solo la caja en 3D: sube las fotos en la sección "Caja en 3D" de más abajo. Aquí no hace falta nada.',
+    box: 'Los perfumes usan solo la caja en 3D: sube las fotos en la sección "Caja en 3D" de más abajo. Aquí no hace falta nada.',
     watch: 'Reloj en 3D (opcional): sube la foto de la pantalla (carátula) y de la parte de atrás, marcando las 4 esquinas. La tienda arma el reloj con correa girando. El color que elija el cliente cambia la correa y la caja.',
   }
 
@@ -900,7 +900,7 @@ export default function Admin({ products, setProducts, categories, setCategories
   }
     const remove = (p) => window.confirm(`¿Eliminar "${p.name}"?`) && setProducts((l) => l.filter((x) => x.id !== p.id))
   const demoCount = products.filter((p) => p.demo).length
-  // Categorías fijas (MacBook, Relojes, Colonias): cada una tiene su pestaña con sus productos.
+  // Categorías fijas (MacBook, Relojes, Perfumes): cada una tiene su pestaña con sus productos.
   const fixed = categories.filter((c) => c.locked)
   const catTab = tab.startsWith('cat:') ? fixed.find((c) => c.id === tab.slice(4)) : null
   const showProducts = tab === 'productos' || Boolean(catTab)
