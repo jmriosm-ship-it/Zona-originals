@@ -1312,10 +1312,15 @@ textarea.field {
 
 .photo-stage {
   height: 100%;
+  /* La celda tiene el tamaño exacto del visor: así la foto nunca se pasa, ni vertical ni horizontal. */
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+  padding: 12px;
 }
 
 .photo-stage img {
-  max-height: 100%;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
   object-fit: contain;
 }
 
