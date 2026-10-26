@@ -9,6 +9,9 @@ export const BUILTIN_CATEGORIES = [
 
 export const DEFAULT_CATEGORIES = [...BUILTIN_CATEGORIES]
 
+// Ids de categorías fijas de versiones anteriores. Si siguen guardados y no tienen productos, la tienda los quita sola.
+export const LEGACY_CATEGORY_IDS = ['reloj', 'colonias']
+
 // Textos de la página de cada categoría fija.
 export const SHOWCASES = {
   macbook: {
@@ -25,8 +28,8 @@ export const SHOWCASES = {
     models: 'Elige tu reloj.',
     tilesTitle: 'Lo principal.',
   },
-  // La clave debe ser el id interno de la categoría (colonias); el nombre que se ve es el label de arriba y el eyebrow.
-  colonias: {
+  // La clave debe ser el id interno de la categoría (Perfume); el nombre que se ve es el label de arriba y el eyebrow.
+  Perfume: {
     eyebrow: 'Perfumes',
     title: 'Tu aroma, tu sello.',
     lead: 'Perfumes originales para cada ocasión, con atención directa en el local.',
@@ -169,7 +172,10 @@ export const modelKind = (p) => {
   if (/iphone|celular/i.test(name)) return 'phone'
   if (/mac\s?book|laptop|port[aá]til|\bmac\b/i.test(name)) return 'laptop'
   if (/watch|reloj/i.test(name)) return 'watch'
-  return p.category === 'macbook' ? 'laptop' : p.category === 'reloj' ? 'watch' : p.category === 'colonias' ? 'box' : 'phone'
+  if (p.category === 'macbook') return 'laptop'
+  if (p.category === 'AppleWatch' || p.category === 'reloj') return 'watch'
+  if (p.category === 'Perfume' || p.category === 'colonias') return 'box'
+  return 'phone'
 }
 
 export const MODEL_LABELS = { phone: 'Celular 3D', laptop: 'MacBook 3D', watch: 'Reloj 3D' }

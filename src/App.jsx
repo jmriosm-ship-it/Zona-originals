@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BUILTIN_CATEGORIES, colorStock, DEFAULT_SETTINGS, SHOWCASES, firstInStock } from './lib/data'
+import { BUILTIN_CATEGORIES, LEGACY_CATEGORY_IDS, colorStock, DEFAULT_SETTINGS, SHOWCASES, firstInStock } from './lib/data'
 import { useLocalState } from './lib/storage'
 import { CATEGORIES_SPEC, PRODUCTS_SPEC, useCloudList, useCloudSettings, useReviews, useSession } from './lib/cloud'
 import Header from './components/Header'
@@ -55,18 +55,27 @@ export default function App() {
     const unlocked = BUILTIN_CATEGORIES.some((b) => categories.some((c) => c.id === b.id && !c.locked))
     // Cada categoría fija tiene su propia página y tipo de 3D: su nombre no se puede cambiar.
     const renamed = BUILTIN_CATEGORIES.some((b) => categories.some((c) => c.id === b.id && c.label !== b.label))
-    if (!missing && !dupes && !unlocked && !renamed) return
+    // Categorías fijas de versiones anteriores (reloj, colonias): si ya no son fijas y no tienen productos, se quitan.
+    // Solo se decide cuando los productos ya cargaron, para no borrar una categoría que sí tiene productos.
+    const isFixed = (id) => BUILTIN_CATEGORIES.some((b) => b.id === id)
+    const stale = productsCloud.ready
+      ? categories.filter((c) => LEGACY_CATEGORY_IDS.includes(c.id) && !isFixed(c.id) && !baseProducts.some((p) => p.category === c.id)).map((c) => c.id)
+      : []
+    // Cualquier otra categoría que haya quedado marcada como fija sin serlo pasa a ser normal (se puede renombrar y borrar).
+    const orphanLocked = categories.some((c) => c.locked && !isFixed(c.id))
+    if (!missing && !dupes && !unlocked && !renamed && !stale.length && !orphanLocked) return
     setCategories((list) => {
       const have = new Set(list.map((c) => c.id))
       const seen = new Set()
       return [...BUILTIN_CATEGORIES.filter((b) => !have.has(b.id)), ...list]
-        .filter((c) => !seen.has(c.id) && seen.add(c.id))
+        .filter((c) => !seen.has(c.id) && seen.add(c.id) && !stale.includes(c.id))
         .map((c) => {
           const fixed = BUILTIN_CATEGORIES.find((b) => b.id === c.id)
-          return fixed ? { ...c, label: fixed.label, locked: true } : c
+          if (fixed) return { ...c, label: fixed.label, locked: true }
+          return c.locked ? { ...c, locked: false } : c
         })
     })
-  }, [categories, setCategories])
+  }, [categories, setCategories, productsCloud.ready, baseProducts])
 
   const route = useMemo(() => {
     if (hash.startsWith('#/admin')) return { name: 'admin' }
