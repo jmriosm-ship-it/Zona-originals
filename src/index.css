@@ -3352,3 +3352,20 @@ textarea.field {
   flex-wrap: wrap;
   gap: 8px 20px;
 }
+
+/* Listas desplegables: fondo oscuro y texto claro en todas (simulador de crédito, admin, ordenar…).
+   Sin esto, el navegador pinta la lista en blanco y el texto claro no se lee. */
+:root {
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background-color: #1d1d1f;
+  color: #f5f5f7;
+}
+
+select option:checked {
+  background-color: #0071e3;
+  color: #fff;
+}
