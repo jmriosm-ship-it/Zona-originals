@@ -5,6 +5,8 @@ export const BUILTIN_CATEGORIES = [
   { id: 'macbook', label: 'MacBook', specLabel: 'Chip', locked: true },
   { id: 'AppleWatch', label: 'AppleWatch', specLabel: 'Tamaño', locked: true },
   { id: 'Perfume', label: 'Perfumes', specLabel: 'Presentación (ml)', locked: true },
+  { id: 'Monastery', label: 'Monastery', specLabel: 'Modelo', locked: true },
+  { id: 'Chevignon', label: 'Chevignon', specLabel: 'Modelo', locked: true },
 ]
 
 export const DEFAULT_CATEGORIES = [...BUILTIN_CATEGORIES]
@@ -34,6 +36,20 @@ export const SHOWCASES = {
     title: 'Tu aroma, tu sello.',
     lead: 'Perfumes originales para cada ocasión, con atención directa en el local.',
     models: 'Elige tu perfume.',
+    tilesTitle: 'Lo principal.',
+  },
+  Chevignon: {
+    eyebrow: 'Chevignon',
+    title: 'Tu estilo, tu gorra.',
+    lead: 'Gorras Chevignon originales, con atención directa en el local.',
+    models: 'Elige tu gorra.',
+    tilesTitle: 'Lo principal.',
+  },
+  Monastery: {
+    eyebrow: 'Monastery',
+    title: 'Tu estilo, tu gorra.',
+    lead: 'Gorras Monastery originales, con atención directa en el local.',
+    models: 'Elige tu gorra.',
     tilesTitle: 'Lo principal.',
   },
 }
@@ -174,7 +190,7 @@ export const modelKind = (p) => {
   if (/watch|reloj/i.test(name)) return 'watch'
   if (p.category === 'macbook') return 'laptop'
   if (p.category === 'AppleWatch' || p.category === 'reloj') return 'watch'
-  if (p.category === 'Perfume' || p.category === 'colonias') return 'box'
+  if (['Perfume', 'colonias', 'Chevignon', 'Monastery'].includes(p.category)) return 'box'
   return 'phone'
 }
 

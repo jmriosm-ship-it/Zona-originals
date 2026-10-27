@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { BOX_DEPTHS, BOX_FACES, COLOR_PRESETS, MODEL_LABELS, modelKind, CONDITIONS, fmtPrice, slugify, uid } from '../lib/data'
+import { BOX_DEPTHS, BOX_FACES, BUILTIN_CATEGORIES, COLOR_PRESETS, MODEL_LABELS, modelKind, CONDITIONS, fmtPrice, slugify, uid } from '../lib/data'
 import { fileToDataUrl } from '../lib/storage'
 import { signIn, signOut, uploadProductImages } from '../lib/cloud'
 import { LOGO } from '../lib/assets'
@@ -901,7 +901,9 @@ export default function Admin({ products, setProducts, categories, setCategories
     const remove = (p) => window.confirm(`¿Eliminar "${p.name}"?`) && setProducts((l) => l.filter((x) => x.id !== p.id))
   const demoCount = products.filter((p) => p.demo).length
   // Categorías fijas (MacBook, Relojes, Perfumes): cada una tiene su pestaña con sus productos.
-  const fixed = categories.filter((c) => c.locked)
+  const fixed = categories
+    .filter((c) => c.locked)
+    .sort((a, b) => BUILTIN_CATEGORIES.findIndex((x) => x.id === a.id) - BUILTIN_CATEGORIES.findIndex((x) => x.id === b.id))
   const catTab = tab.startsWith('cat:') ? fixed.find((c) => c.id === tab.slice(4)) : null
   const showProducts = tab === 'productos' || Boolean(catTab)
   const listed = catTab ? products.filter((p) => p.category === catTab.id) : products

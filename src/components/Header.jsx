@@ -46,7 +46,11 @@ export default function Header({ route, products, categories, cartCount, onCart 
   const hasStore = categories.some((c) => c.id !== 'iphone' && !BUILTIN_IDS.includes(c.id))
   const base = LINKS.filter(([, , key]) => (key === 'tienda' ? hasStore : key !== 'celulares' || hasPhones))
   // MacBook y Relojes tienen su propio acceso en el menú, justo después de Celulares.
-  const fixed = categories.filter((c) => BUILTIN_IDS.includes(c.id)).map((c) => [categoryHref(c.id), c.label, c.id])
+  // Las categorías fijas salen siempre en el orden de BUILTIN_CATEGORIES (data.js), sin importar cómo estén guardadas.
+  const fixed = categories
+    .filter((c) => BUILTIN_IDS.includes(c.id))
+    .sort((a, b) => BUILTIN_IDS.indexOf(a.id) - BUILTIN_IDS.indexOf(b.id))
+    .map((c) => [categoryHref(c.id), c.label, c.id])
   const at = base.findIndex(([, , key]) => key === 'celulares')
   const links = at >= 0 ? [...base.slice(0, at + 1), ...fixed, ...base.slice(at + 1)] : [base[0], ...fixed, ...base.slice(1)]
   const [open, setOpen] = useState(false)
