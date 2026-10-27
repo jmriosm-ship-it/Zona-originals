@@ -1,5 +1,5 @@
 import BoxViewer from './BoxViewer'
-import LogoBackdrop from './LogoBackdrop'
+import { STORE } from '../lib/assets'
 import { colorsOf, fmtPrice, has3d, modelKind } from '../lib/data'
 
 // Si hay un celular con fotos 3D disponible, la portada lo muestra girando al lado del título.
@@ -15,7 +15,7 @@ export default function Hero({ city, product }) {
       </div>
 
       <section className={`hero ${product ? 'hero-split' : ''}`}>
-        <LogoBackdrop />
+        <img className="hero-store" src={STORE} alt="" aria-hidden="true" draggable="false" />
         <div className="wrap hero-in">
           <div className="hero-copy">
             <p className="eyebrow rise" style={{ '--i': 0 }}>

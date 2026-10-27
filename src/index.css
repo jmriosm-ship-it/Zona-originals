@@ -3287,6 +3287,14 @@ textarea.field {
 }
 
 /* Portada: foto del más vendido y etiqueta */
+/* Si la foto del producto trae fondo negro, "lighten" lo deja transparente sobre la foto del local. */
+.hero {
+  isolation: isolate;
+}
+.hero .hero-in {
+  mix-blend-mode: lighten;
+}
+
 .hero-photo {
   width: 100%;
   height: calc(100% - 52px);
@@ -3375,3 +3383,26 @@ select option:checked {
 
 .credit-logos{ display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
 .credit-logos img {width: 44px; height: 44px; border-radius: 12px; object-fit: cover;}
+
+/* Foto del local de fondo en la portada: desenfoque suave y oscurecida para que el texto se lea. */
+.hero-store {
+  position: absolute;
+  inset: -12px;
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  object-fit: cover;
+  object-position: center 35%;
+  filter: blur(1.5px) brightness(0.5);
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 60%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 75%, #000);
+}
