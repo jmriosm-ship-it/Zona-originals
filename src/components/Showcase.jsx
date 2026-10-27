@@ -107,14 +107,15 @@ export default function Showcase({ category, products, settings, onOpen, onAdd }
       <section className="section">
         <div className="wrap">
           <Reveal className="panel showcase-cta">
-            <h2 className="h2">¿Lo quieres a crédito?</h2>
-            <p className="sub">Simula tu cuota o escríbenos y te asesoramos con los requisitos.</p>
+            <h2 className="h2">¿Lo quieres a cuotas?</h2>
+            <p className="sub">Págalo con Addi o Sistecrédito. Escríbenos y te ayudamos con el proceso.</p>
+            <div className="credit-logos">
+              <img src={`${import.meta.env.BASE_URL}addi.jpg`} alt="Addi" />
+              <img src={`${import.meta.env.BASE_URL}sistecredito.png`} alt="Sistecrédito"/>
+            </div>
             <div className="actions">
-              <a className="btn btn-primary btn-buy" href="#/credito">
-                Simular crédito
-              </a>
-              <a className="btn btn-ghost" href={ask} target="_blank" rel="noreferrer">
-                Escribir por WhatsApp
+              <a className="btn btn-primary btn-buy" href={ask} target="_blank" rel="noreferrer">
+                Escribir por whatsapp
               </a>
             </div>
           </Reveal>

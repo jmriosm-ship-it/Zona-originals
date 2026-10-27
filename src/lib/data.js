@@ -181,3 +181,4 @@ export const modelKind = (p) => {
 export const MODEL_LABELS = { phone: 'Celular 3D', laptop: 'MacBook 3D', watch: 'Reloj 3D' }
 
 export const has3d = (p) => Boolean(p.phoneScreen || p.phoneBack) && modelKind(p) !== 'box'
+export const creditkind = (p) => (!p.credit ? null : p.category === 'iphone' ? 'simulador' : 'addi')

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { MODEL_LABELS, categoryHref, colorStock, colorsOf, fmtPrice, has3d, modelKind, waLink } from '../lib/data'
+import { MODEL_LABELS, categoryHref, colorStock, colorsOf, creditkind, fmtPrice, has3d, modelKind, waLink } from '../lib/data'
 import BoxViewer from './BoxViewer'
 import Placeholder from './Placeholder'
 import LogoBackdrop from './LogoBackdrop'
@@ -195,17 +195,28 @@ export default function ProductPage({ product, category, whatsapp, warranty, onA
             <strong>Garantía</strong>
             <span>Toca para ver qué cubre.</span>
           </button>
-          {product.credit ? (
+          
+          {creditkind(product)=== 'simulador' ? (
             <a className="trust-tile trust-link" href="#/credito">
               <strong>Crédito</strong>
               <span>Simula tu cuota con este equipo.</span>
             </a>
+          ) : creditkind(product) === 'addi' ? (
+            <div className="trust-tile credit-partners">
+              <strong>Págalo a cuotas</strong>
+              <span>Con Addi o Sistecrédito.</span>
+              <span className="credit-logos">
+                <img src={`${import.meta.env.BASE_URL}addi.jpg`} alt="Addi" />
+                <img src={`${import.meta.env.BASE_URL}sistecredito.png`} alt="Sistecrédito"/>
+              </span>
+            </div>
           ) : (
             <a className="trust-tile trust-link" href={ask} target="_blank" rel="noreferrer">
               <strong>Atención directa</strong>
-              <span>Pregunta por WhatsApp, sin intermediarios.</span>
+              <span>Pregunta por whatsapp, sin intermediarios.</span>
             </a>
           )}
+          
         </div>
       </div>
 

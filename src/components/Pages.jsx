@@ -181,7 +181,7 @@ export function CreditPage({ products, settings, onOpen, onAdd }) {
               </h2>
               <p className="sub">Elige el celular, la cuota inicial y el plazo.</p>
             </header>
-            <CreditSimulator products={products} settings={settings} />
+            <CreditSimulator products={products.filter((p)=> p.category === 'iphone')} settings={settings} />
           </Reveal>
         </div>
       </section>

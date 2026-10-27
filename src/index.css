@@ -3372,3 +3372,6 @@ select option:checked {
   background-color: #0071e3;
   color: #fff;
 }
+
+.credit-logos{ display: flex; justify-content: center; gap: 12px; margin-top: 10px; }
+.credit-logos img {width: 44px; height: 44px; border-radius: 12px; object-fit: cover;}
