@@ -8,11 +8,10 @@ import Visit from './Visit'
 import { Testimonials, TikTokVideos } from './Social'
 
 
-// Un acceso por categoría (las crea el administrador) más Celulares y Crédito.
+// Un acceso por categoría (las crea el administrador) más Celulares. El crédito ya está en el menú de arriba.
 const pathsFor = (categories) => [
   ...(categories.some((c) => c.id === 'iphone') ? [['#/celulares', 'IPHONE', 'iPhone del 13 en adelante.']] : []),
   ...categories.filter((c) => c.id !== 'iphone').map((c) => [categoryHref(c.id), c.label, 'Todo original.']),
-  ['#/credito', 'Crédito', 'Llévatelo con cuotas.'],
 ]
 
 
@@ -28,22 +27,6 @@ export default function Home({ products, categories, settings, onOpen, onAdd }) 
   return (
     <>
       <Hero city={city} product={heroProduct} />
-
-      <section className="section">
-        <div className="wrap">
-          <div className="paths">
-            {pathsFor(categories).map(([href, t, d], i) => (
-              <Reveal as="a" key={t} href={href} className="path" delay={i * 90}>
-                <span className="path-t">{t}</span>
-                <span className="path-d">{d}</span>
-                <span className="path-go" aria-hidden="true">
-                  →
-                </span>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {featured.length > 0 && (
         <section className="section">
@@ -67,6 +50,22 @@ export default function Home({ products, categories, settings, onOpen, onAdd }) 
           </div>
         </section>
       )}
+
+      <section className="section">
+        <div className="wrap">
+          <div className="paths">
+            {pathsFor(categories).map(([href, t, d], i) => (
+              <Reveal as="a" key={t} href={href} className="path" delay={i * 90}>
+                <span className="path-t">{t}</span>
+                <span className="path-d">{d}</span>
+                <span className="path-go" aria-hidden="true">
+                  →
+                </span>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="section" aria-labelledby="local">
         <div className="wrap">
