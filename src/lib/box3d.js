@@ -480,8 +480,8 @@ export function createBoxScene(container, { image, faces = {}, depth = 0.34, nam
           const pw = (cam.x1 - cam.x0) * fw
           const phh = (cam.y1 - cam.y0) * fh
           // Dos niveles, como un módulo real: la base del bloque y, encima, el vidrio de las lentes.
-          const rise = Math.max(0.04, d * 0.95)
-          const rise2 = Math.max(0.015, d * 0.32)
+          const rise = Math.max(0.02, d * 0.45)
+          const rise2 = Math.max(0.008, d * 0.16)
           const bev = 0.006
           const tex = new THREE.Texture(back)
           tex.colorSpace = THREE.SRGBColorSpace
@@ -515,8 +515,8 @@ export function createBoxScene(container, { image, faces = {}, depth = 0.34, nam
             m.position.set(cx, cy, z0)
             box.add(m)
           }
-          block(pw, phh, rise, -d / 2 + 0.002, wallMat)
-          block(pw * 0.88, phh * 0.88, rise2, -d / 2 - rise + 0.004, glassWall)
+          // Un solo bloque: el segundo nivel se veía como un borde doble alrededor de las lentes.
+          block(pw, phh, rise + rise2, -d / 2 + 0.002, wallMat)
         }
       }
     }
