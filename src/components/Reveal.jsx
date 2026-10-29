@@ -20,7 +20,8 @@ export default function Reveal({ as: Tag = 'div', delay = 0, className = '', chi
         // Al subir, lo que queda debajo de la pantalla se desvanece; lo que ya pasó por arriba se queda visible.
         else if (entry.boundingClientRect.top > 0) setShown(false)
       },
-      { threshold: 0.12, rootMargin: '0px 0px -6% 0px' },
+      // threshold 0: basta con que asome un poco; con un porcentaje, un bloque muy alto (lista larga de productos) nunca aparecería.
+      { threshold: 0, rootMargin: '0px 0px -6% 0px' },
     )
     io.observe(el)
     return () => io.disconnect()
