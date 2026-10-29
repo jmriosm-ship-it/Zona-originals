@@ -491,10 +491,11 @@ export function createBoxScene(container, { image, faces = {}, depth = 0.34, nam
           tex.needsUpdate = true
           texs.push(tex)
           const capMat = new THREE.MeshPhysicalMaterial({ map: tex, bumpMap: tex, bumpScale: 1.5, roughness: 0.3, clearcoat: 0.6, clearcoatRoughness: 0.25 })
-          // Paredes oscuras para que el escalón se distinga del color de la tapa.
-          const wallMat = new THREE.MeshPhysicalMaterial({ color: 0x3b3b40, metalness: 0.9, roughness: 0.25 })
-          const glassWall = new THREE.MeshPhysicalMaterial({ color: 0x08080a, roughness: 0.08, clearcoat: 1 })
-          mats.push(capMat, wallMat, glassWall)
+          // Las paredes del bloque usan el mismo material del marco, así siguen el color del celular
+          // (en uno blanco no quedan bordes negros) y el escalón se distingue por la luz.
+          const wallMat = side
+          const glassWall = side
+          mats.push(capMat)
           const cx = (0.5 - (cam.x0 + cam.x1) / 2) * fw
           const cy = (0.5 - (cam.y0 + cam.y1) / 2) * fh
           const block = (bw, bh, depthZ, z0, walls) => {
