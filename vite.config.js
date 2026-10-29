@@ -2,9 +2,9 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [react()],
-  // En Netlify y Cloudflare Pages (con dominio propio) la página vive en la raíz; en GitHub Pages, dentro de /Zona-originals/.
-  // Netlify define NETLIFY y Cloudflare Pages define CF_PAGES al compilar.
-  base: process.env.NETLIFY || process.env.CF_PAGES ? '/' : '/Zona-originals/',
-})
+  // Al publicar (Cloudflare, Netlify) con dominio propio, la página vive en la raíz.
+  // Solo en desarrollo local, o al compilar para GitHub Pages, va dentro de /Zona-originals/.
+  base: command === 'build' && !process.env.GITHUB_ACTIONS ? '/' : '/Zona-originals/',
+}))
